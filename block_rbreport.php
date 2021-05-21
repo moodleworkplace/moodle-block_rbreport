@@ -28,6 +28,7 @@
  * @author     Marina Glancy
  * @copyright  2021 Moodle Pty Ltd <support@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
 class block_rbreport extends block_base {
 

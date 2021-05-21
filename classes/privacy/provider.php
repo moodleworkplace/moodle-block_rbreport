@@ -21,26 +21,26 @@
 // Wherever conflicting terms exist, the terms of the MWL are binding
 // and shall prevail.
 
+namespace block_rbreport\privacy;
+
 /**
- * Plugin version and other meta-data are defined here.
+ * Privacy Subsystem implementation for block_rbreport.
  *
- * @package     block_rbreport
- * @author      Marina Glancy
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_rbreport
+ * @copyright  2021 Moodle Pty Ltd <support@moodle.com>
+ * @author     2021 Marina Glancy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @license    Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
+class provider implements \core_privacy\local\metadata\null_provider {
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'block_rbreport';
-$plugin->release = '3.11dev';
-$plugin->version = 2021052101;
-$plugin->requires = 2019052000;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = [
-    'tool_wp'            => 2021051300,
-    'tool_tenant'        => 2021051300,
-    'tool_reportbuilder' => 2021051300
-];
-
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata:block';
+    }
+}

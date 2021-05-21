@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle Workplace https://moodle.com/workplace based on Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,11 +13,19 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+//
+// Moodle Workplace Code is dual-licensed under the terms of both the
+// single GNU General Public Licence version 3.0, dated 29 June 2007
+// and the terms of the proprietary Moodle Workplace Licence strictly
+// controlled by Moodle Pty Ltd and its certified premium partners.
+// Wherever conflicting terms exist, the terms of the MWL are binding
+// and shall prevail.
 
 /**
  * Plugin version and other meta-data are defined here.
  *
  * @package     block_rbreport
+ * @author      Marina Glancy
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,7 +33,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_rbreport';
-$plugin->release = '0.1.0';
+$plugin->release = '3.11dev';
 $plugin->version = 2021052101;
 $plugin->requires = 2019052000;
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->maturity = MATURITY_STABLE;
+$plugin->dependencies = [
+    'tool_wp'            => 2021051300,
+    'tool_tenant'        => 2021051300,
+    'tool_reportbuilder' => 2021051300
+];
+

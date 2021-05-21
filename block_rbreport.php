@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle Workplace https://moodle.com/workplace based on Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,18 +13,29 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+//
+// Moodle Workplace Code is dual-licensed under the terms of both the
+// single GNU General Public Licence version 3.0, dated 29 June 2007
+// and the terms of the proprietary Moodle Workplace Licence strictly
+// controlled by Moodle Pty Ltd and its certified premium partners.
+// Wherever conflicting terms exist, the terms of the MWL are binding
+// and shall prevail.
 
 /**
- * rbreport block.
+ * Custom report block.
  *
  * @package    block_rbreport
+ * @author     Marina Glancy
  * @copyright  2021 Moodle Pty Ltd <support@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_rbreport extends block_base {
 
     /** @var stdClass $content */
-    var $content = null;
+    public $content = null;
+
+    /** @var \tool_reportbuilder\report_base */
+    protected $report = false;
 
     /**
      * Initializes class member variables.
@@ -57,9 +68,12 @@ class block_rbreport extends block_base {
 
         if (!empty($this->config->text)) {
             $this->content->text = $this->config->text;
+        } else if ($report = $this->get_report()) {
+            $outputpage = new \tool_reportbuilder\output\report_view($report, false);
+            $output = $this->page->get_renderer('tool_reportbuilder');
+            $this->content->text = $output->render($outputpage);
         } else {
-            $text = 'Please define the content text in /blocks/rbreport/block_rbreport.php.';
-            $this->content->text = $text;
+            $this->content->text = '';
         }
 
         return $this->content;
@@ -73,10 +87,12 @@ class block_rbreport extends block_base {
     public function specialization() {
 
         // Load user defined title and make sure it's never empty.
-        if (empty($this->config->title)) {
-            $this->title = get_string('pluginname', 'block_rbreport');
-        } else {
+        if (!empty($this->config->title)) {
             $this->title = $this->config->title;
+        } else if ($report = $this->get_report()) {
+            $this->title = format_string($report->get_reportname());
+        } else {
+            $this->title = get_string('pluginname', 'block_rbreport');
         }
     }
 
@@ -87,5 +103,39 @@ class block_rbreport extends block_base {
      */
     public function applicable_formats() {
         return ['all' => true];
+    }
+
+    /**
+     * Allow multiple instances
+     * @return bool
+     */
+    public function instance_allow_multiple() {
+        return true;
+    }
+
+    /**
+     * Get current report
+     *
+     * @return \tool_reportbuilder\report_base|null
+     */
+    protected function get_report(): ?\tool_reportbuilder\report_base {
+        if (empty($this->config)) {
+            return null;
+        }
+        if ($this->report === false) {
+            $this->report = null;
+            if ($reportid = $this->config->report) {
+                $parameters = []; // TODO?
+                try {
+                    $report = \tool_reportbuilder\manager::get_report($reportid, $parameters);
+                    if ($report && \tool_reportbuilder\permission::can_view($report)) {
+                        $this->report = $report;
+                    }
+                } catch (moodle_exception $e) {
+                    null;
+                }
+            }
+        }
+        return $this->report;
     }
 }

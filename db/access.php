@@ -15,17 +15,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Rbreport block capabilities.
  *
- * @package     block_rbreport
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_rbreport
+ * @copyright  2021 Moodle Pty Ltd <support@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_rbreport';
-$plugin->release = '0.1.0';
-$plugin->version = 2021052101;
-$plugin->requires = 2019052000;
-$plugin->maturity = MATURITY_ALPHA;
+$capabilities = [
+    'block/rbreport:myaddinstance' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'user' => CAP_ALLOW
+        ],
+
+        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+    ],
+    'block/rbreport:addinstance' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW
+        ],
+
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+    ],
+];

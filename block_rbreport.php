@@ -15,14 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Block rbreport is defined here.
- *
- * @package     block_rbreport
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-/**
  * rbreport block.
  *
  * @package    block_rbreport
@@ -30,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_rbreport extends block_base {
+
+    /** @var stdClass $content */
+    var $content = null;
 
     /**
      * Initializes class member variables.
@@ -91,7 +86,6 @@ class block_rbreport extends block_base {
      * @return string[] Array of pages and permissions.
      */
     public function applicable_formats() {
-        return array(
-        );
+        return ['all' => true];
     }
 }

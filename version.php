@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Moodle Workplace Code is dual-licensed under the terms of both the
-// single GNU General Public Licence version 3.0, dated 29 June 2007
-// and the terms of the proprietary Moodle Workplace Licence strictly
-// controlled by Moodle Pty Ltd and its certified premium partners.
-// Wherever conflicting terms exist, the terms of the MWL are binding
-// and shall prevail.
+// Moodle Workplace™ Code is the collection of software scripts
+// (plugins and modifications, and any derivations thereof) that are
+// exclusively owned and licensed by Moodle under the terms of this
+// proprietary Moodle Workplace License ("MWL") alongside Moodle's open
+// software package offering which itself is freely downloadable at
+// "download.moodle.org" and which is provided by Moodle under a single
+// GNU General Public License version 3.0, dated 29 June 2007 ("GPL").
+// MWL is strictly controlled by Moodle Pty Ltd and its certified
+// premium partners. Wherever conflicting terms exist, the terms of the
+// MWL are binding and shall prevail.
 
 /**
  * Plugin version and other meta-data are defined here.
@@ -27,8 +31,7 @@
  * @package     block_rbreport
  * @author      Marina Glancy
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @license    Moodle Workplace License, distribution is restricted, contact support@moodle.com
+ * @license     Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
 
 defined('MOODLE_INTERNAL') || die();

@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Moodle Workplace Code is dual-licensed under the terms of both the
-// single GNU General Public Licence version 3.0, dated 29 June 2007
-// and the terms of the proprietary Moodle Workplace Licence strictly
-// controlled by Moodle Pty Ltd and its certified premium partners.
-// Wherever conflicting terms exist, the terms of the MWL are binding
-// and shall prevail.
+// Moodle Workplace™ Code is the collection of software scripts
+// (plugins and modifications, and any derivations thereof) that are
+// exclusively owned and licensed by Moodle under the terms of this
+// proprietary Moodle Workplace License ("MWL") alongside Moodle's open
+// software package offering which itself is freely downloadable at
+// "download.moodle.org" and which is provided by Moodle under a single
+// GNU General Public License version 3.0, dated 29 June 2007 ("GPL").
+// MWL is strictly controlled by Moodle Pty Ltd and its certified
+// premium partners. Wherever conflicting terms exist, the terms of the
+// MWL are binding and shall prevail.
 
 /**
  * Plugin strings are defined here.
@@ -27,15 +31,25 @@
  * @package     block_rbreport
  * @author      Marina Glancy
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @license    Moodle Workplace License, distribution is restricted, contact support@moodle.com
+ * @license     Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['configreport'] = 'Report';
-$string['configtitle'] = 'Custom reports block title';
+$string['configlayout'] = 'Layout';
+$string['configlayout_help'] = '<strong>Adaptative:</strong> Display as cards only in small blocks<br>
+<strong>Cards:</strong> Always display as cards<br>
+<strong>Table:</strong> Always display as table';
+$string['configreport'] = 'Select report';
+$string['configreport_help'] = 'Custom report that will be embedded into the block';
+$string['configtitle'] = 'Block title';
+$string['displayadaptative'] = 'Adaptative';
+$string['displayascards'] = 'Cards';
+$string['displayastable'] = 'Table';
+$string['entriesperpage'] = 'Entries per page';
+$string['gotofullreport'] = 'Go to full report';
 $string['pluginname'] = 'Custom report';
 $string['privacy:metadata:block'] = 'The Custom report block stores all of its data within the block subsystem.';
 $string['rbreport:addinstance'] = 'Add a new Custom report block';
 $string['rbreport:myaddinstance'] = 'Add a new Custom report block to Dashboard';
+$string['reportnotsetmessage'] = '<p>This block will not be visible to other users until a report is set.</p> <a href="{$a}">Configure block</a>';

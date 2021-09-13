@@ -95,6 +95,7 @@ class block_rbreport_edit_form extends block_edit_form {
             'currenttenantid' => \tool_tenant\tenancy::get_tenant_id()
         ];
 
+        // TODO: Get the correct report options depending on where is the user adding the block (own/tenant/system dashboard).
         if (\tool_reportbuilder\permission::can_view_any()) {
             // Return all tenant and shared reports.
             $select = 'type = :customreport AND (tenantid = :currenttenantid OR (shared = 1 AND tenantid = :sharedtenantid))';

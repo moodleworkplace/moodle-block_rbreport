@@ -135,7 +135,7 @@ class block_rbreport extends block_base {
                 $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
                 try {
                     $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
-                    if ($report && tool_reportbuilder\permission::can_view($report)) {
+                    if (tool_reportbuilder\permission::can_view($report)) {
                         $this->report = $report;
                     }
                 } catch (moodle_exception $e) {

@@ -26,7 +26,7 @@
 // MWL are binding and shall prevail.
 
 /**
- * Form for editing HTML block instances.
+ * Form for editing Custom report block instances.
  *
  * @package    block_rbreport
  * @author     Marina Glancy
@@ -36,7 +36,7 @@
 class block_rbreport_edit_form extends block_edit_form {
 
     /** Display as cards only in small blocks. */
-    const LAYOUT_DYNAMIC = 'dynamic';
+    const LAYOUT_ADAPTIVE = 'adaptive';
     /** Always display as cards. */
     const LAYOUT_CARDS = 'cards';
     /** Always display as table. */
@@ -52,7 +52,7 @@ class block_rbreport_edit_form extends block_edit_form {
      * @throws coding_exception
      */
     protected function specific_definition($mform) {
-        // Fields for editing HTML block title and contents.
+        // Fields for editing Custom report block title and contents.
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_rbreport'));
@@ -64,7 +64,7 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addRule('config_report', get_string('required'), 'required', null, 'client');
 
         $options = [
-            self::LAYOUT_DYNAMIC => get_string('displayadaptative', 'block_rbreport'),
+            self::LAYOUT_ADAPTIVE => get_string('displayadaptive', 'block_rbreport'),
             self::LAYOUT_CARDS => get_string('displayascards', 'block_rbreport'),
             self::LAYOUT_TABLE => get_string('displayastable', 'block_rbreport'),
         ];
@@ -85,10 +85,10 @@ class block_rbreport_edit_form extends block_edit_form {
     /**
      * List of available reports
      *
-     * @return array|string[]
+     * @return string[]
      * @throws dml_exception
      */
-    protected function get_report_options() {
+    protected function get_report_options(): array {
         global $DB;
         $params = [
             'customreport' => 0,
@@ -107,7 +107,8 @@ class block_rbreport_edit_form extends block_edit_form {
                 return [];
             }
             [$insql, $inparams] = $DB->get_in_or_equal($allowedreports);
-            $reports = $DB->get_records_sql_menu("SELECT id, name FROM {tool_reportbuilder} WHERE id $insql", $inparams);
+            $reports = $DB->get_records_sql_menu("SELECT id, name FROM {tool_reportbuilder} WHERE id $insql ORDER BY name, id",
+                $inparams);
         }
 
         // Add empty option on first load to avoid autocomplete selecting the first option automatically.

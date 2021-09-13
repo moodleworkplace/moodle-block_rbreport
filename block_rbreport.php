@@ -38,7 +38,7 @@ class block_rbreport extends block_base {
     /** @var stdClass $content */
     public $content = null;
 
-    /** @var \tool_reportbuilder\report_base */
+    /** @var tool_reportbuilder\report_base */
     protected $report = false;
 
     /** @var string */
@@ -71,17 +71,17 @@ class block_rbreport extends block_base {
         $this->content = new stdClass();
         $this->content->items = [];
         $this->content->icons = [];
-        $this->content->footer = '';
 
         if ($report = $this->get_report()) {
-            $outputpage = new \tool_reportbuilder\output\report_view($report, false);
+            $outputpage = new tool_reportbuilder\output\report_view($report, false);
             $output = $this->page->get_renderer('tool_reportbuilder');
             $layoutclass = !empty($this->config->layout) ? 'rblayout-' . $this->config->layout : '';
-            $this->content->text = \html_writer::div($output->render($outputpage), 'rblayout ' . $layoutclass);
-            $fullreporturl = new \moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
-            $this->content->footer = \html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
+            $this->content->text = html_writer::div($output->render($outputpage), 'rblayout ' . $layoutclass);
+            $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
+            $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else {
             $this->content->text = $this->user_can_edit() ? $this->statusmessage : '';
+            $this->content->footer = '';
         }
 
         return $this->content;
@@ -124,12 +124,11 @@ class block_rbreport extends block_base {
     /**
      * Get current report
      *
-     * @return \tool_reportbuilder\report_base|null
+     * @return tool_reportbuilder\report_base|null
      */
     protected function get_report(): ?\tool_reportbuilder\report_base {
         if (empty($this->config)) {
-            $editblockurl = new moodle_url($this->page->url->out(false), ['bui_editid' => $this->instance->id]);
-            $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport', $editblockurl->out()));
+            $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport'));
             return null;
         }
         if ($this->report === false) {
@@ -137,8 +136,8 @@ class block_rbreport extends block_base {
             if ($reportid = $this->config->report) {
                 $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
                 try {
-                    $report = \tool_reportbuilder\manager::get_report($reportid, $parameters);
-                    if ($report && \tool_reportbuilder\permission::can_view($report)) {
+                    $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
+                    if ($report && tool_reportbuilder\permission::can_view($report)) {
                         $this->report = $report;
                     }
                 } catch (moodle_exception $e) {

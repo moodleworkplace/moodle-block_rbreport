@@ -37,13 +37,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['configlayout'] = 'Layout';
-$string['configlayout_help'] = '<strong>Adaptative:</strong> Display as cards only in small blocks<br>
-<strong>Cards:</strong> Always display as cards<br>
-<strong>Table:</strong> Always display as table';
+$string['configlayout_help'] = '**Adaptive:** Display as cards only in small blocks<br>
+**Cards:** Always display as cards<br>
+**Table:** Always display as table';
 $string['configreport'] = 'Select report';
 $string['configreport_help'] = 'Custom report that will be embedded into the block';
 $string['configtitle'] = 'Block title';
-$string['displayadaptative'] = 'Adaptative';
+$string['displayadaptive'] = 'Adaptive';
 $string['displayascards'] = 'Cards';
 $string['displayastable'] = 'Table';
 $string['entriesperpage'] = 'Entries per page';
@@ -52,4 +52,4 @@ $string['pluginname'] = 'Custom report';
 $string['privacy:metadata:block'] = 'The Custom report block stores all of its data within the block subsystem.';
 $string['rbreport:addinstance'] = 'Add a new Custom report block';
 $string['rbreport:myaddinstance'] = 'Add a new Custom report block to Dashboard';
-$string['reportnotsetmessage'] = '<p>This block will not be visible to other users until a report is set.</p> <a href="{$a}">Configure block</a>';
+$string['reportnotsetmessage'] = 'Block is not configured';

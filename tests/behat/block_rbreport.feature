@@ -6,7 +6,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
 
   Background:
     Given "2" tenants exist with "10" users and "0" courses in each
-    # This will create users: tenantadmin1, user11 .... , user16, tenantadmin2, user21 .... user26.
+    # This will create users: tenantadmin1, user11 .... , user19, tenantadmin2, user21 .... user29.
     And the following "tool_reportbuilder > reports" exist:
       | name    | tenant  | source                                                              |
       | Report1 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
@@ -159,10 +159,10 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I follow "Dashboard"
     And I configure the "Report1" block
     And I set the following fields to these values:
-      | Layout            | Adaptative   |
+      | Layout            | Adaptive   |
     And I press "Save changes"
-    # Adaprative view show cards in small screens.
+    # Adaptive view show cards in small screens.
     And I should not see "user11@invalid.com" in the "report-table" "table"
     And I change window size to "large"
-    # Adaprative view show table in large screens.
+    # Adaptive view show table in large screens.
     And I should see "user11@invalid.com" in the "report-table" "table"

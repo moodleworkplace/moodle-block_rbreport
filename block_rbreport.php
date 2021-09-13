@@ -69,8 +69,6 @@ class block_rbreport extends block_base {
         }
 
         $this->content = new stdClass();
-        $this->content->items = [];
-        $this->content->icons = [];
 
         if ($report = $this->get_report()) {
             $outputpage = new tool_reportbuilder\output\report_view($report, false);

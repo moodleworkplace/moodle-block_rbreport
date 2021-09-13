@@ -1,4 +1,4 @@
-@block @block_rbreport @javascript
+@block @block_rbreport @moodleworkplace @javascript
 Feature: The 'Custom Report' block allows users to view custom reports
   In order to view report builder custom reports
   As a user
@@ -20,8 +20,8 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I navigate to "Appearance > Default site dashboard page" in site administration
     And I press "Blocks editing on"
     And I add the "Custom report" block
-    And I should see "This block will not be visible to other users until a report is set."
-    And I follow "Configure block"
+    And I should see "Block is not configured" in the "Custom report" "block"
+    And I configure the "Custom report" block
     And I set the following fields to these values:
       | Select report  | Report1 |
     And I press "Save changes"
@@ -58,7 +58,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
     When I log in as "tenantadmin1"
     Then I press "Customise this page"
     And I add the "Custom report" block
-    And I should see "This block will not be visible to other users until a report is set."
+    And I should see "Block is not configured" in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should exist
@@ -85,7 +85,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I log in as "user11"
     And I press "Customise this page"
     And I add the "Custom report" block
-    And I should see "This block will not be visible to other users until a report is set."
+    And I should see "Block is not configured" in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And I click on "Report1" item in the autocomplete list
@@ -147,7 +147,9 @@ Feature: The 'Custom Report' block allows users to view custom reports
       | Weight            | -1      |
     And I press "Save changes"
     # Forcing Card view show cards also in large screens.
-    And I should not see "user11@invalid.com" in the "report-table" "table"
+    # In card view only the first column is visible (name), the email will not be visible
+    And I should see "User 11" in the "Report1" "block"
+    And I should not see "user11@invalid.com" in the "Report1" "block"
     And I follow "Dashboard"
     And I configure the "Report1" block
     And I set the following fields to these values:
@@ -155,14 +157,17 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I press "Save changes"
     And I change window size to "530x678"
     # Forcing Table view show table also in small screens.
-    And I should see "user11@invalid.com" in the "report-table" "table"
+    And I should see "User 11" in the "Report1" "block"
+    And I should see "user11@invalid.com" in the "Report1" "block"
     And I follow "Dashboard"
     And I configure the "Report1" block
     And I set the following fields to these values:
       | Layout            | Adaptive   |
     And I press "Save changes"
     # Adaptive view show cards in small screens.
-    And I should not see "user11@invalid.com" in the "report-table" "table"
+    And I should see "User 11" in the "Report1" "block"
+    And I should not see "user11@invalid.com" in the "Report1" "block"
     And I change window size to "large"
     # Adaptive view show table in large screens.
-    And I should see "user11@invalid.com" in the "report-table" "table"
+    And I should see "User 11" in the "Report1" "block"
+    And I should see "user11@invalid.com" in the "Report1" "block"

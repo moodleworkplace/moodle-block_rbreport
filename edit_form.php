@@ -86,7 +86,6 @@ class block_rbreport_edit_form extends block_edit_form {
      * List of available reports
      *
      * @return string[]
-     * @throws dml_exception
      */
     protected function get_report_options(): array {
         global $DB;

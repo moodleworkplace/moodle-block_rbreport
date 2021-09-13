@@ -67,9 +67,8 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I press "Save changes"
     And I should see "User 11" in the "Report2" "block"
     And I follow "Go to full report"
-    And I should see "Report2"
-    And I should see "Email address" in the "report-table" "table"
-    And I should see "user11@invalid.com" in the "report-table" "table"
+    And I should see "Report builder" in the ".breadcrumb" "css_element"
+    And I should see "Report2" in the ".breadcrumb" "css_element"
 
   Scenario: Create a 'Custom report' block as normal user
     # First add user11 in Report1 audiences.
@@ -88,27 +87,11 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I should see "Block is not configured" in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
+    And "Report2" "autocomplete_suggestions" should not exist
+    And "Report3" "autocomplete_suggestions" should not exist
     And I click on "Report1" item in the autocomplete list
     And I press "Save changes"
     And I should see "User 11" in the "Report1" "block"
-    And I log out
-    # Now remove user11 from Report1 audiences.
-    And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Edit content" "link" in the "Report1" "table_row"
-    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
-    And I click on "Delete" "link"
-    And I click on "Delete" "button" in the "Confirm" "dialogue"
-    And I log out
-    # Check custom Report1 block does not appear in user11 dashboard (not in report audience anymore).
-    And I log in as "user11"
-    And I should not see "Custom report"
-    And I should not see "Report1"
-    And I press "Customise this page"
-    And I configure the "Custom report" block
-    And I open the autocomplete suggestions list
-    And "Report1" "autocomplete_suggestions" should not exist
-    And I press "Cancel"
 
   Scenario: Edit pagination setting in 'Custom Report' block
     # Create two blocks with different pagination setting.

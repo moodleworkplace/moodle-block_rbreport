@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Moodle Workplace Code is dual-licensed under the terms of both the
-// single GNU General Public Licence version 3.0, dated 29 June 2007
-// and the terms of the proprietary Moodle Workplace Licence strictly
-// controlled by Moodle Pty Ltd and its certified premium partners.
-// Wherever conflicting terms exist, the terms of the MWL are binding
-// and shall prevail.
+// Moodle Workplace™ Code is the collection of software scripts
+// (plugins and modifications, and any derivations thereof) that are
+// exclusively owned and licensed by Moodle under the terms of this
+// proprietary Moodle Workplace License ("MWL") alongside Moodle's open
+// software package offering which itself is freely downloadable at
+// "download.moodle.org" and which is provided by Moodle under a single
+// GNU General Public License version 3.0, dated 29 June 2007 ("GPL").
+// MWL is strictly controlled by Moodle Pty Ltd and its certified
+// premium partners. Wherever conflicting terms exist, the terms of the
+// MWL are binding and shall prevail.
 
 /**
  * Custom report block.
@@ -27,7 +31,6 @@
  * @package    block_rbreport
  * @author     Marina Glancy
  * @copyright  2021 Moodle Pty Ltd <support@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @license    Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
 class block_rbreport extends block_base {
@@ -35,8 +38,11 @@ class block_rbreport extends block_base {
     /** @var stdClass $content */
     public $content = null;
 
-    /** @var \tool_reportbuilder\report_base */
+    /** @var tool_reportbuilder\report_base */
     protected $report = false;
+
+    /** @var string */
+    protected $statusmessage = '';
 
     /**
      * Initializes class member variables.
@@ -63,18 +69,17 @@ class block_rbreport extends block_base {
         }
 
         $this->content = new stdClass();
-        $this->content->items = array();
-        $this->content->icons = array();
-        $this->content->footer = '';
 
-        if (!empty($this->config->text)) {
-            $this->content->text = $this->config->text;
-        } else if ($report = $this->get_report()) {
-            $outputpage = new \tool_reportbuilder\output\report_view($report, false);
+        if ($report = $this->get_report()) {
+            $outputpage = new tool_reportbuilder\output\report_view($report, false);
             $output = $this->page->get_renderer('tool_reportbuilder');
-            $this->content->text = $output->render($outputpage);
+            $layoutclass = !empty($this->config->layout) ? 'rblayout-' . $this->config->layout : '';
+            $this->content->text = html_writer::div($output->render($outputpage), 'rblayout ' . $layoutclass);
+            $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
+            $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else {
-            $this->content->text = '';
+            $this->content->text = $this->user_can_edit() ? $this->statusmessage : '';
+            $this->content->footer = '';
         }
 
         return $this->content;
@@ -117,23 +122,25 @@ class block_rbreport extends block_base {
     /**
      * Get current report
      *
-     * @return \tool_reportbuilder\report_base|null
+     * @return tool_reportbuilder\report_base|null
      */
     protected function get_report(): ?\tool_reportbuilder\report_base {
         if (empty($this->config)) {
+            $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport'));
             return null;
         }
         if ($this->report === false) {
             $this->report = null;
             if ($reportid = $this->config->report) {
-                $parameters = []; // TODO?
+                $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
                 try {
-                    $report = \tool_reportbuilder\manager::get_report($reportid, $parameters);
-                    if ($report && \tool_reportbuilder\permission::can_view($report)) {
+                    $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
+                    if ($report && tool_reportbuilder\permission::can_view($report)) {
                         $this->report = $report;
                     }
                 } catch (moodle_exception $e) {
-                    null;
+                    $this->statusmessage = html_writer::div($e->getMessage(), 'alert alert-danger');
+                    return null;
                 }
             }
         }

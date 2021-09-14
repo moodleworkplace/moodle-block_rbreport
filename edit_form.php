@@ -58,8 +58,12 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_rbreport'));
         $mform->setType('config_title', PARAM_TEXT);
 
-        $mform->addElement('autocomplete', 'config_report', get_string('configreport', 'block_rbreport'),
-            $this->get_report_options());
+        $options = \block_rbreport\manager::get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
+        // Add empty option on first load to avoid autocomplete selecting the first option automatically.
+        if (!isset($this->block->config)) {
+            $options = ['' => ''] + $options;
+        }
+        $mform->addElement('autocomplete', 'config_report', get_string('configreport', 'block_rbreport'), $options);
         $mform->addHelpButton('config_report', 'configreport', 'block_rbreport');
         $mform->addRule('config_report', get_string('required'), 'required', null, 'client');
 
@@ -80,41 +84,5 @@ class block_rbreport_edit_form extends block_edit_form {
         ];
         $mform->addElement('select', 'config_pagesize', get_string('entriesperpage', 'block_rbreport'), $cardsarray);
         $mform->setType('config_pagesize', PARAM_INT);
-    }
-
-    /**
-     * List of available reports
-     *
-     * @return string[]
-     */
-    protected function get_report_options(): array {
-        global $DB;
-        $params = [
-            'customreport' => 0,
-            'sharedtenantid' => \tool_tenant\sharedspace::get_shared_space_id(),
-            'currenttenantid' => \tool_tenant\tenancy::get_tenant_id()
-        ];
-
-        // TODO: Get the correct report options depending on where is the user adding the block (own/tenant/system dashboard).
-        if (\tool_reportbuilder\permission::can_view_any()) {
-            // Return all tenant and shared reports.
-            $select = 'type = :customreport AND (tenantid = :currenttenantid OR (shared = 1 AND tenantid = :sharedtenantid))';
-            $reports = $DB->get_records_select_menu('tool_reportbuilder', $select, $params, 'name, id', 'id, name');
-        } else {
-            // If user can't view all reports, limit the returned list to those they can see.
-            $allowedreports = \tool_reportbuilder\local\helpers\audience::user_reports_list();
-            if (empty($allowedreports)) {
-                return [];
-            }
-            [$insql, $inparams] = $DB->get_in_or_equal($allowedreports);
-            $reports = $DB->get_records_sql_menu("SELECT id, name FROM {tool_reportbuilder} WHERE id $insql ORDER BY name, id",
-                $inparams);
-        }
-
-        // Add empty option on first load to avoid autocomplete selecting the first option automatically.
-        if (!isset($this->block->config)) {
-            $reports = ['' => ''] + $reports;
-        }
-        return $reports;
     }
 }

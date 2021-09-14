@@ -13,17 +13,22 @@ Feature: The 'Custom Report' block allows users to view custom reports
       | Report2 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
       | Report3 | Tenant2 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
 
-  Scenario: View a 'Custom report' block added by admin in the dashboard as normal user
-    # Add a 'Custom report' block to the default dashboard.
-    When I log in as "admin"
-    Then I switch to tenant "Tenant1"
-    And I navigate to "Appearance > Default site dashboard page" in site administration
+  Scenario: View a 'Custom report' block added by tenantadmin in the tenant dashboard as normal user
+    # Add a 'Custom report' block to the tenant dashboard.
+    When I log in as "tenantadmin1"
+    And I navigate to "Appearance" in workplace launcher
+    And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
+    And I press "Create personalised dashboard..."
+    And I click on "Proceed" "button" in the "Confirmation" "dialogue"
+    And I press "Edit dashboard"
     And I press "Blocks editing on"
     And I add the "Custom report" block
     And I should see "Block is not configured" in the "Custom report" "block"
     And I configure the "Custom report" block
-    And I set the following fields to these values:
-      | Select report  | Report1 |
+    And I open the autocomplete suggestions list
+    And "Report2" "autocomplete_suggestions" should exist
+    And "Report3" "autocomplete_suggestions" should not exist
+    And I click on "Report1" item in the autocomplete list
     And I press "Save changes"
     And I log out
     # Check custom Report1 block does not appear in user11 dashboard (not in report audience).

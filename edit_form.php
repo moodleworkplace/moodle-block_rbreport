@@ -25,6 +25,8 @@
 // premium partners. Wherever conflicting terms exist, the terms of the
 // MWL are binding and shall prevail.
 
+use block_rbreport\manager;
+
 /**
  * Form for editing Custom report block instances.
  *
@@ -58,7 +60,7 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_rbreport'));
         $mform->setType('config_title', PARAM_TEXT);
 
-        $options = \block_rbreport\manager::get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
+        $options = (new manager())->get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
         // Add empty option on first load to avoid autocomplete selecting the first option automatically.
         if (!isset($this->block->config)) {
             $options = ['' => ''] + $options;

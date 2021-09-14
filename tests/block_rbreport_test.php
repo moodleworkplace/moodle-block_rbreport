@@ -34,6 +34,9 @@
  * @license     Moodle Workplace License, distribution is restricted, contact support@moodle.com
  */
 
+use tool_reportbuilder\test\mock_report;
+use tool_reportbuilder\tool_reportbuilder\audiences\manual;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -50,16 +53,82 @@ class block_rbreport_test extends advanced_testcase {
      */
     protected function setUp(): void {
         $this->resetAfterTest();
-        $this->generator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
     }
 
     /**
      * Test for manager::get_report_options
      */
     public function test_get_report_options(): void {
-        // TODO: Write test covering all possible options.
-        $url = new \moodle_url('/my/indexsys.php');
-        $options = \block_rbreport\manager::get_report_options('my-index', null, $url);
+        global $DB;
+
+        $sharedspaceid = \tool_tenant\sharedspace::enable_shared_space();
+        $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
+        $reportbuildergenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
+
+        // Create tenants and users.
+        [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
+            ['dashboardlinked' => 0]);
+        [$tenant2, [$user2]] = $tenantgenerator->create_tenant_and_users(1,
+            ['dashboardlinked' => 0]);
+
+        // Create an admin for tenant1.
+        $manager = new \tool_tenant\manager();
+        $tenantadmin1 = $this->getDataGenerator()->create_user();
+        $manager->allocate_user($tenantadmin1->id, $tenant1->id, 'tool_tenant', 'testing');
+        $manager->assign_tenant_admin_roles([$tenantadmin1->id], $tenant1->id);
+
+        // Create a shared report.
+        $sharedreport = $reportbuildergenerator->create_report([
+            'name' => 'Shared Report',
+            'source' => mock_report::class,
+            'tenantid' => $sharedspaceid,
+            'shared' => true,
+        ]);
+        // Create a report in each tenant.
+        $report1 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+        $report2 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+        $report3 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant2->id]);
+
+        // Create audiences.
+        manual::create($report3->get_id(), ['users' => [$user2->id]]);
+
+        // Create 'my' pages.
+        $sitedefaultpage = $DB->insert_record('my_pages', ['userid' => null, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+        $tenant1page = $DB->insert_record('my_pages', ['userid' => null, 'name' => 'tenant-' . $tenant1->id, 'private' => 1,
+            'sortorder' => 0]);
+        $user1page = $DB->insert_record('my_pages', ['userid' => $user1->id, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+        $user2page = $DB->insert_record('my_pages', ['userid' => $user2->id, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+
+        $manager = new \block_rbreport\manager();
+
+        $this->setUser($tenantadmin1);
+
+        // System default dashboard.
+        $options = $manager->get_report_options('my-index', $sitedefaultpage, new \moodle_url('/my/indexsys.php'));
+        $expected = [$sharedreport->get_id() => $sharedreport->get_reportname()];
+        $this->assertEquals($expected, $options);
+
+        // Tenant dashboard.
+        $options = $manager->get_report_options('my-index', $tenant1page, new \moodle_url('/admin/tool/tenant/editdashboard.php'));
+        $expected = [
+            $sharedreport->get_id() => $sharedreport->get_reportname(),
+            $report1->get_id() => $report1->get_reportname(),
+            $report2->get_id() => $report2->get_reportname(),
+        ];
+        $this->assertEquals($expected, $options);
+
+        $this->setUser($user1);
+        // User1 dashboard.
+        $options = $manager->get_report_options('my-index', $user1page, new \moodle_url('/my/index.php'));
         $this->assertEmpty($options);
+
+        $this->setUser($user2);
+        // User2 dashboard.
+        $options = $manager->get_report_options('my-index', $user2page, new \moodle_url('/my/index.php'));
+        $expected = [$report3->get_id() => $report3->get_reportname()];
+        $this->assertEquals($expected, $options);
     }
 }

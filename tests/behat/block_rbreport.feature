@@ -23,7 +23,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I press "Edit dashboard"
     And I press "Blocks editing on"
     And I add the "Custom report" block
-    And I should see "Block is not configured" in the "Custom report" "block"
+    And I should see "Please configure this block and select which report it should display." in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And "Report2" "autocomplete_suggestions" should exist
@@ -36,6 +36,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I should not see "Custom report"
     And I should not see "Report1"
     And I press "Customise this page"
+    And I should see "Error occurred while retrieving the report" in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should not exist
@@ -58,6 +59,64 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_selection" should exist
     And "Report2" "autocomplete_suggestions" should not exist
+    And I log out
+    # Now remove Report1.
+    And I log in as "tenantadmin1"
+    And I navigate to "Report builder" in workplace launcher
+    And I click on "Delete report" "link" in the "Report1" "table_row"
+    And I click on "Delete" "button" in the "Confirm" "dialogue"
+    And I log out
+    # Check Report1 block does not appear for user.
+    And I log in as "user11"
+    And I should not see "Custom report"
+    And I press "Customise this page"
+    And I should see "Error occurred while retrieving the report" in the "Custom report" "block"
+
+  Scenario: View a 'Custom report' block added by tenantadmin in the tenant dashboard as normal user (no block editing permissions)
+    Given the following "permission overrides" exist:
+      | capability                   | permission     | role                  | contextlevel | reference |
+      | moodle/my:manageblocks       | Prevent        | user                  | System       |           |
+      | moodle/my:manageblocks       | Allow          | tool_tenant_admin     | System       |           |
+    # Add a 'Custom report' block to the tenant dashboard.
+    When I log in as "tenantadmin1"
+    And I navigate to "Appearance" in workplace launcher
+    And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
+    And I press "Create personalised dashboard..."
+    And I click on "Proceed" "button" in the "Confirmation" "dialogue"
+    And I press "Edit dashboard"
+    And I press "Blocks editing on"
+    And I add the "Custom report" block
+    And I configure the "Custom report" block
+    And I set the following fields to these values:
+      | Select report     | Report1 |
+    And I press "Save changes"
+    And I log out
+    # Check custom Report1 block does not appear in user11 dashboard (not in report audience).
+    And I log in as "user11"
+    And I should not see "Custom report"
+    And I log out
+    # Now add user11 in Report1 audiences.
+    And I log in as "tenantadmin1"
+    And I navigate to "Report builder" in workplace launcher
+    And I click on "Edit content" "link" in the "Report1" "table_row"
+    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
+    And I click on "Manually added users" "link"
+    And I set the field "Add users manually" to "User11"
+    And I press "Save changes"
+    And I log out
+    # Check custom Report1 block appears in user11 dashboard.
+    And I log in as "user11"
+    And I should see "User 11" in the "Report1" "block"
+    And I log out
+    # Now remove Report1.
+    And I log in as "tenantadmin1"
+    And I navigate to "Report builder" in workplace launcher
+    And I click on "Delete report" "link" in the "Report1" "table_row"
+    And I click on "Delete" "button" in the "Confirm" "dialogue"
+    And I log out
+    # Check Report1 block does not appear for user.
+    And I log in as "user11"
+    And I should not see "Custom report"
 
   Scenario: Configure a 'Custom report' block added by admin in a tenant dashboard as normal user
     # Add a 'Custom report' block to the tenant1 dashboard.
@@ -99,7 +158,7 @@ Feature: The 'Custom Report' block allows users to view custom reports
     When I log in as "tenantadmin1"
     Then I press "Customise this page"
     And I add the "Custom report" block
-    And I should see "Block is not configured" in the "Custom report" "block"
+    And I should see "Please configure this block and select which report it should display." in the "Custom report" "block"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should exist
@@ -125,7 +184,11 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I log in as "user11"
     And I press "Customise this page"
     And I add the "Custom report" block
-    And I should see "Block is not configured" in the "Custom report" "block"
+    And I should see "Please configure this block and select which report it should display." in the "Custom report" "block"
+    # Check that block is not shown while not editing the page.
+    And I press "Stop customising this page"
+    And I should not see "Custom report"
+    And I press "Customise this page"
     And I configure the "Custom report" block
     And I open the autocomplete suggestions list
     And "Report2" "autocomplete_suggestions" should not exist

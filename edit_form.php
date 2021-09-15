@@ -78,13 +78,9 @@ class block_rbreport_edit_form extends block_edit_form {
             $options);
         $mform->addHelpButton('config_layout', 'configlayout', 'block_rbreport');
 
-        $cardsarray = [
-            5 => 5,
-            10 => 10,
-            25 => 25,
-            50 => 50,
-        ];
+        $cardsarray = [1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 10 => 10, 25 => 25, 50 => 50];
         $mform->addElement('select', 'config_pagesize', get_string('entriesperpage', 'block_rbreport'), $cardsarray);
+        $mform->setDefault('config_pagesize', 5);
         $mform->setType('config_pagesize', PARAM_INT);
     }
 }

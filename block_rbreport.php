@@ -78,8 +78,7 @@ class block_rbreport extends block_base {
             $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else {
-            $this->content->text = $this->user_can_edit() ? $this->statusmessage : '';
-            $this->content->footer = '';
+            $this->content->text = $this->user_can_edit() && $this->page->user_is_editing() ? $this->statusmessage : '';
         }
 
         return $this->content;
@@ -132,14 +131,17 @@ class block_rbreport extends block_base {
         if ($this->report === false) {
             $this->report = null;
             if ($reportid = $this->config->report) {
+                $erroralert = html_writer::div(get_string('errormessage', 'block_rbreport'), 'alert alert-danger');
                 $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
                 try {
                     $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
                     if (tool_reportbuilder\permission::can_view($report)) {
                         $this->report = $report;
+                    } else {
+                        $this->statusmessage = $erroralert;
                     }
                 } catch (moodle_exception $e) {
-                    $this->statusmessage = html_writer::div($e->getMessage(), 'alert alert-danger');
+                    $this->statusmessage = $erroralert;
                     return null;
                 }
             }

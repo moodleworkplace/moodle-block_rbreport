@@ -7,6 +7,9 @@ Feature: The 'Custom Report' block allows users to view custom reports
   Background:
     Given "2" tenants exist with "10" users and "0" courses in each
     # This will create users: tenantadmin1, user11 .... , user19, tenantadmin2, user21 .... user29.
+    And the following users allocations to tenants exist:
+      | user  | tenant  |
+      | admin | Tenant1 |
     And the following "tool_reportbuilder > reports" exist:
       | name    | tenant  | source                                                              |
       | Report1 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
@@ -218,7 +221,8 @@ Feature: The 'Custom Report' block allows users to view custom reports
     And I should not see "User 16" in the "Report1" "block"
     And I should see "User 11" in the "Report1B" "block"
     And I should see "User 16" in the "Report1B" "block"
-    And I click on "Show all 10" "button" in the "Report1" "block"
+    # Change to page 2.
+    And I click on "2" "link" in the "Report1" "block"
     And I should see "User 16" in the "Report1" "block"
 
   Scenario: Edit layout setting in 'Custom Report' block
@@ -258,3 +262,29 @@ Feature: The 'Custom Report' block allows users to view custom reports
     # Adaptive view show table in large screens.
     And I should see "User 11" in the "Report1" "block"
     And I should see "user11@invalid.com" in the "Report1" "block"
+
+  Scenario: Add a 'Custom report' block in a page with a system report.
+    When I log in as "admin"
+    # Go to 'Report Builder' page because it has a system report.
+    And I navigate to "Report builder" in workplace launcher
+    And I should see "Report1" in the ".system-report" "css_element"
+    And I should not see "User 11" in the ".system-report" "css_element"
+    # Now add a 'Custom Report' block.
+    And I press "Blocks editing on"
+    And I add the "Custom report" block
+    And I configure the "Custom report" block
+    And I set the following fields to these values:
+      | Block title        | Users report |
+      | Select report     | Report1      |
+    And I press "Save changes"
+    And I should see "User 11" in the "Users report" "block"
+    And I should not see "Report1" in the "Users report" "block"
+    # Filter and reset the system report.
+    And I click on "Show/hide filters sidebar" "button" in the "region-main" "region"
+    And I set the field "tool_reportbuilder:source_op" to "isn't equal to"
+    And I click on "Reset table" "button" in the "region-main" "region"
+    # Check that both reports are showing the correct data.
+    And I should see "Report1" in the ".system-report" "css_element"
+    And I should not see "User 11" in the ".system-report" "css_element"
+    And I should see "User 11" in the "Users report" "block"
+    And I should not see "Report1" in the "Users report" "block"

@@ -63,7 +63,7 @@ class block_rbreport_test extends advanced_testcase {
 
         $sharedspaceid = \tool_tenant\sharedspace::enable_shared_space();
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
-        $reportbuildergenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
+        $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
 
         // Create tenants and users.
         [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
@@ -78,16 +78,16 @@ class block_rbreport_test extends advanced_testcase {
         $manager->assign_tenant_admin_roles([$tenantadmin1->id], $tenant1->id);
 
         // Create a shared report.
-        $sharedreport = $reportbuildergenerator->create_report([
+        $sharedreport = $rbgenerator->create_report([
             'name' => 'Shared Report',
             'source' => mock_report::class,
             'tenantid' => $sharedspaceid,
             'shared' => true,
         ]);
         // Create a report in each tenant.
-        $report1 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
-        $report2 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
-        $report3 = $reportbuildergenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant2->id]);
+        $report1 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+        $report2 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+        $report3 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant2->id]);
 
         // Create audiences.
         manual::create($report3->get_id(), ['users' => [$user2->id]]);

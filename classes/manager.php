@@ -86,7 +86,7 @@ class manager {
                 return [];
             }
             [$insql, $inparams] = $DB->get_in_or_equal($allowedreports, SQL_PARAMS_NAMED);
-            $select .= "AND id $insql";
+            $select .= " AND id $insql";
             $selectparams = array_merge($selectparams, $inparams);
         }
 

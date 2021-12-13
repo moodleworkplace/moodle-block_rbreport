@@ -64,7 +64,7 @@ class manager {
      * @param int $tenantid
      * @return string[]
      */
-    private function get_tenant_reports($tenantid): array {
+    private function get_tenant_reports(int $tenantid): array {
         global $DB;
 
         [$select, $selectparams] = \tool_tenant\hierarchy::filter_own_or_parent_shared_entities_sql('tenantid',
@@ -93,6 +93,13 @@ class manager {
      * @return string[]
      */
     private function get_shared_reports(): array {
-        return $this->get_tenant_reports(\tool_tenant\sharedspace::get_shared_space_id());
+        $sharedspaceid = \tool_tenant\sharedspace::get_shared_space_id();
+
+        // If shared space isn't enabled then there are no shared reports.
+        if (!$sharedspaceid) {
+            return [];
+        }
+
+        return $this->get_tenant_reports($sharedspaceid);
     }
 }

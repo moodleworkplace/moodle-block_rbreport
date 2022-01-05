@@ -14,29 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for block_rbreport.
- *
- * @package     block_rbreport
- * @author      Mikel Martín <mikel@moodle.com>
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace block_rbreport;
 
+use advanced_testcase;
 use tool_reportbuilder\test\mock_report;
 use tool_reportbuilder\tool_reportbuilder\audiences\manual;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * Unit tests for block_rbreport.
+ * Unit tests for manager class.
  *
  * @package     block_rbreport
  * @author      Mikel Martín <mikel@moodle.com>
+ * @covers      \block_rbreport\manager
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_rbreport_test extends advanced_testcase {
+class manager_test extends advanced_testcase {
     /**
      * Set up
      */
@@ -91,7 +84,7 @@ class block_rbreport_test extends advanced_testcase {
         $user2page = $DB->insert_record('my_pages', ['userid' => $user2->id, 'name' => '__default', 'private' => 1,
             'sortorder' => 0]);
 
-        $manager = new \block_rbreport\manager();
+        $manager = new manager();
 
         $this->setUser($tenantadmin1);
 
@@ -118,6 +111,52 @@ class block_rbreport_test extends advanced_testcase {
         // User2 dashboard.
         $options = $manager->get_report_options('my-index', $user2page, new \moodle_url('/my/index.php'));
         $expected = [$report3->get_id() => $report3->get_reportname()];
+        $this->assertEquals($expected, $options);
+    }
+
+    /**
+     * Test for manager::get_report_options with disabled shared space
+     */
+    public function test_get_report_options_disabled_shared_space(): void {
+        global $DB;
+
+        $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
+        $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
+
+        // Create tenants and users.
+        [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
+            ['dashboardlinked' => 0]);
+
+        // Create an admin for tenant1.
+        $manager = new \tool_tenant\manager();
+        $tenantadmin1 = $this->getDataGenerator()->create_user();
+        $manager->allocate_user($tenantadmin1->id, $tenant1->id, 'tool_tenant', 'testing');
+        $manager->assign_tenant_admin_roles([$tenantadmin1->id], $tenant1->id);
+
+        // Create a report.
+        $report1 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+
+        // Create audience.
+        manual::create($report1->get_id(), ['users' => [$user1->id]]);
+
+        // Create 'my' pages.
+        $sitedefaultpage = $DB->insert_record('my_pages', ['userid' => null, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+        $user1page = $DB->insert_record('my_pages', ['userid' => $user1->id, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+
+        $manager = new manager();
+
+        $this->setUser($tenantadmin1);
+
+        // System default dashboard.
+        $options = $manager->get_report_options('my-index', $sitedefaultpage, new \moodle_url('/my/indexsys.php'));
+        $this->assertEmpty($options);
+
+        $this->setUser($user1);
+        // User1 dashboard.
+        $options = $manager->get_report_options('my-index', $user1page, new \moodle_url('/my/index.php'));
+        $expected = [$report1->get_id() => $report1->get_reportname()];
         $this->assertEquals($expected, $options);
     }
 }

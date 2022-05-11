@@ -49,7 +49,7 @@ jobtest:
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite tool_dataprivacy_testsuite --filter metadata_registry_test
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite core_testsuite --filter test_all_external_info
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite core_privacy_testsuite --filter provider_test
-  - . check moodle-plugin-ci phpunit --coverage-text
+  - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
   - php admin/tool/behat/cli/init.php --add-core-features-to-theme
   - . check moodle-plugin-ci behat --suite workplace --profile chrome
   - . check-finish

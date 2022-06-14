@@ -125,7 +125,7 @@ Feature: The Report block allows users to view custom reports
     # Add a Report block to the tenant1 dashboard.
     When I log in as "admin"
     And I navigate to "All tenants" in workplace launcher
-    And I follow "Manage tenant 'Tenant2'"
+    And I click on "Tenant2" "link" in the "Tenant2" "tool_wp > Table tree node"
     And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
     And I press "Create personalised dashboard..."
     And I click on "Proceed" "button" in the "Confirmation" "dialogue"

@@ -37,6 +37,7 @@ jobtest:
   - . check this_plugin_is_part_of "the block_rbreport plugin for Moodle - http://moodle.org/" --nowplicensecomment
   - . check version_number
   - . check language_file_sorting
+  - . check behat_workplace_tag
   - . check moodle-plugin-ci phplint
   - . check moodle-plugin-ci phpcpd
   - . check moodle-plugin-ci phpmd

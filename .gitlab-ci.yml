@@ -39,8 +39,8 @@ jobtest:
   - . check language_file_sorting
   - . check behat_workplace_tag
   - . check moodle-plugin-ci phplint
-  - . check moodle-plugin-ci phpcpd
-  - . check moodle-plugin-ci phpmd
+  #- . check moodle-plugin-ci phpcpd
+  #- . check moodle-plugin-ci phpmd
   - . check moodle-plugin-ci codechecker --max-warnings 0
   - . check moodle-plugin-ci phpdoc
   - . check moodle-plugin-ci validate

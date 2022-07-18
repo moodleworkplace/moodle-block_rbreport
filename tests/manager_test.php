@@ -17,8 +17,10 @@
 namespace block_rbreport;
 
 use advanced_testcase;
-use tool_reportbuilder\test\mock_report;
-use tool_reportbuilder\tool_reportbuilder\audiences\manual;
+use core_reportbuilder\local\helpers\audience;
+use core_reportbuilder\reportbuilder\audience\manual;
+use core_reportbuilder\reportbuilder\audience\systemrole;
+use core_user\reportbuilder\datasource\users;
 
 /**
  * Unit tests for manager class.
@@ -45,7 +47,8 @@ class manager_test extends advanced_testcase {
 
         $sharedspaceid = \tool_tenant\sharedspace::enable_shared_space();
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
-        $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
+        /** @var \core_reportbuilder_generator $rbgenerator */
+        $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');
 
         // Create tenants and users.
         [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
@@ -62,17 +65,32 @@ class manager_test extends advanced_testcase {
         // Create a shared report.
         $sharedreport = $rbgenerator->create_report([
             'name' => 'Shared Report',
-            'source' => mock_report::class,
-            'tenantid' => $sharedspaceid,
-            'shared' => true,
+            'source' => users::class,
+            'component' => 'tool_tenant',
+            'area' => 'shared',
+            'itemid' => $sharedspaceid,
         ]);
         // Create a report in each tenant.
-        $report1 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
-        $report2 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
-        $report3 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant2->id]);
+        $report1 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant1->id, 'name' => 'R1']);
+        $report2 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant1->id, 'name' => 'R2']);
+        $report3 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant2->id, 'name' => 'R3']);
 
         // Create audiences.
-        manual::create($report3->get_id(), ['users' => [$user2->id]]);
+        $rbgenerator->create_audience([
+            'reportid' => $report3->get('id'),
+            'classname' => manual::class,
+            'configdata' => ['users' => [$user2->id]],
+        ]);
+        $rbgenerator->create_audience([
+            'reportid' => $sharedreport->get('id'),
+            'classname' => systemrole::class,
+            'configdata' => ['roles' => [\tool_tenant\manager::get_tenant_admin_role()]],
+        ]);
+        // Purge cache, to ensure allowed reports are re-calculated.
+        audience::purge_caches();
 
         // Create 'my' pages.
         $sitedefaultpage = $DB->insert_record('my_pages', ['userid' => null, 'name' => '__default', 'private' => 1,
@@ -90,15 +108,15 @@ class manager_test extends advanced_testcase {
 
         // System default dashboard.
         $options = $manager->get_report_options('my-index', $sitedefaultpage, new \moodle_url('/my/indexsys.php'));
-        $expected = [$sharedreport->get_id() => $sharedreport->get_reportname()];
+        $expected = [$sharedreport->get('id') => $sharedreport->get_formatted_name()];
         $this->assertEquals($expected, $options);
 
         // Tenant dashboard.
         $options = $manager->get_report_options('my-index', $tenant1page, new \moodle_url('/admin/tool/tenant/editdashboard.php'));
         $expected = [
-            $sharedreport->get_id() => $sharedreport->get_reportname(),
-            $report1->get_id() => $report1->get_reportname(),
-            $report2->get_id() => $report2->get_reportname(),
+            $sharedreport->get('id') => $sharedreport->get_formatted_name(),
+            $report1->get('id') => $report1->get_formatted_name(),
+            $report2->get('id') => $report2->get_formatted_name(),
         ];
         $this->assertEquals($expected, $options);
 
@@ -110,7 +128,45 @@ class manager_test extends advanced_testcase {
         $this->setUser($user2);
         // User2 dashboard.
         $options = $manager->get_report_options('my-index', $user2page, new \moodle_url('/my/index.php'));
-        $expected = [$report3->get_id() => $report3->get_reportname()];
+        $expected = [$report3->get('id') => $report3->get_formatted_name()];
+        $this->assertEquals($expected, $options);
+    }
+
+    /**
+     * Test for manager::get_report_options when user has own reports
+     *
+     * @return void
+     */
+    public function test_get_report_options_own_reports(): void {
+        global $DB;
+
+        $roleid = $DB->get_field('role', 'id', ['shortname' => 'user']);
+        role_change_permission($roleid, \context_system::instance(), 'moodle/reportbuilder:edit', CAP_ALLOW);
+
+        $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
+        /** @var \core_reportbuilder_generator $rbgenerator */
+        $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');
+
+        // Create tenants and users.
+        [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
+            ['dashboardlinked' => 0]);
+        $manager = new manager();
+
+        // Create report as admin - it will not be visible to user.
+        $this->setAdminUser();
+        $report0 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant1->id, 'name' => 'R0']);
+
+        // User2 dashboard.
+        $this->setUser($user1);
+        $user1page = $DB->insert_record('my_pages', ['userid' => $user1->id, 'name' => '__default', 'private' => 1,
+            'sortorder' => 0]);
+        // Create report as user - it will be visible to user.
+        $report1 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant1->id, 'name' => 'R1']);
+
+        $options = $manager->get_report_options('my-index', $user1page, new \moodle_url('/my/index.php'));
+        $expected = [$report1->get('id') => $report1->get_formatted_name()];
         $this->assertEquals($expected, $options);
     }
 
@@ -121,7 +177,8 @@ class manager_test extends advanced_testcase {
         global $DB;
 
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
-        $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
+        /** @var \core_reportbuilder_generator $rbgenerator */
+        $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');
 
         // Create tenants and users.
         [$tenant1, [$user1]] = $tenantgenerator->create_tenant_and_users(1,
@@ -134,10 +191,15 @@ class manager_test extends advanced_testcase {
         $manager->assign_tenant_admin_roles([$tenantadmin1->id], $tenant1->id);
 
         // Create a report.
-        $report1 = $rbgenerator->create_report(['source' => mock_report::class, 'tenantid' => $tenant1->id]);
+        $report1 = $rbgenerator->create_report(['source' => users::class,
+            'component' => 'tool_tenant', 'itemid' => $tenant1->id, 'name' => 'R1']);
 
         // Create audience.
-        manual::create($report1->get_id(), ['users' => [$user1->id]]);
+        $rbgenerator->create_audience([
+            'reportid' => $report1->get('id'),
+            'classname' => manual::class,
+            'configdata' => ['users' => [$user1->id]],
+        ]);
 
         // Create 'my' pages.
         $sitedefaultpage = $DB->insert_record('my_pages', ['userid' => null, 'name' => '__default', 'private' => 1,
@@ -156,7 +218,7 @@ class manager_test extends advanced_testcase {
         $this->setUser($user1);
         // User1 dashboard.
         $options = $manager->get_report_options('my-index', $user1page, new \moodle_url('/my/index.php'));
-        $expected = [$report1->get_id() => $report1->get_reportname()];
+        $expected = [$report1->get('id') => $report1->get_formatted_name()];
         $this->assertEquals($expected, $options);
     }
 }

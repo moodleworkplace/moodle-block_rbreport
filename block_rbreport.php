@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use core_reportbuilder\external\custom_report_exporter;
+
 /**
  * Custom report block.
  *
@@ -27,8 +29,11 @@ class block_rbreport extends block_base {
     /** @var stdClass $content */
     public $content = null;
 
+    /** @var \core_reportbuilder\local\report\base */
+    protected $corereport = false;
+
     /** @var tool_reportbuilder\report_base */
-    protected $report = false;
+    protected $toolreport = false;
 
     /** @var string */
     protected $statusmessage = '';
@@ -58,11 +63,23 @@ class block_rbreport extends block_base {
         }
 
         $this->content = new stdClass();
+        $layoutclass = !empty($this->config->layout) ? 'rblayout-' . $this->config->layout : '';
 
-        if ($report = $this->get_report()) {
+        if ($report = $this->get_core_report()) {
+            if (method_exists($report, 'set_default_per_page')) {
+                // Method was added in Moodle LMS 4.1 in MDL-73184, it is present in Workplace 4.0 but not LMS 4.0.
+                $report->set_default_per_page(((int)$this->config->pagesize) ?: $report->get_default_per_page());
+            }
+            $outputpage = new \core_reportbuilder\output\custom_report($report->get_report_persistent(), false);
+            $output = $this->page->get_renderer('core_reportbuilder');
+            $export = $outputpage->export_for_template($output);
+            $outputhtml = $output->render_from_template('core_reportbuilder/report', $export);
+            $this->content->text = html_writer::div($outputhtml, 'rblayout ' . $layoutclass);
+            $fullreporturl = new moodle_url('/reportbuilder/view.php', ['id' => $report->get_report_persistent()->get('id')]);
+            $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
+        } else if ($report = $this->get_tool_report()) {
             $outputpage = new tool_reportbuilder\output\report_view($report, false);
             $output = $this->page->get_renderer('tool_reportbuilder');
-            $layoutclass = !empty($this->config->layout) ? 'rblayout-' . $this->config->layout : '';
             $this->content->text = html_writer::div($output->render($outputpage), 'rblayout ' . $layoutclass);
             $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
@@ -83,10 +100,19 @@ class block_rbreport extends block_base {
         // Load user defined title and make sure it's never empty.
         if (!empty($this->config->title)) {
             $this->title = $this->config->title;
-        } else if ($report = $this->get_report()) {
+        } else if ($report = $this->get_core_report()) {
+            $this->title = $report->get_report_persistent()->get_formatted_name();
+        } else if ($report = $this->get_tool_report()) {
             $this->title = format_string($report->get_reportname());
         } else {
             $this->title = get_string('pluginname', 'block_rbreport');
+        }
+
+        if ((!empty($this->config->corereport) && !$this->get_core_report()) ||
+                (!empty($this->config->report) && !$this->get_tool_report())) {
+            $this->statusmessage = html_writer::div(get_string('errormessage', 'block_rbreport'), 'alert alert-danger');
+        } else {
+            $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport'));
         }
     }
 
@@ -110,31 +136,45 @@ class block_rbreport extends block_base {
     /**
      * Get current report
      *
-     * @return tool_reportbuilder\report_base|null
+     * @return \core_reportbuilder\local\report\base|null
      */
-    protected function get_report(): ?\tool_reportbuilder\report_base {
-        if (empty($this->config)) {
-            $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport'));
-            return null;
-        }
-        if ($this->report === false) {
-            $this->report = null;
-            if ($reportid = $this->config->report) {
-                $erroralert = html_writer::div(get_string('errormessage', 'block_rbreport'), 'alert alert-danger');
-                $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
+    protected function get_core_report(): ?\core_reportbuilder\local\report\base {
+        if ($this->corereport === false) {
+            $this->corereport = null;
+            if ($reportid = $this->config->corereport ?? 0) {
                 try {
-                    $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
-                    if (tool_reportbuilder\permission::can_view($report)) {
-                        $this->report = $report;
-                    } else {
-                        $this->statusmessage = $erroralert;
+                    $report = \core_reportbuilder\manager::get_report_from_id($reportid);
+                    if (\core_reportbuilder\permission::can_view_report($report->get_report_persistent())) {
+                        $this->corereport = $report;
                     }
                 } catch (moodle_exception $e) {
-                    $this->statusmessage = $erroralert;
                     return null;
                 }
             }
         }
-        return $this->report;
+        return $this->corereport;
+    }
+
+    /**
+     * Get current report (tool_reportbuilder)
+     *
+     * @return tool_reportbuilder\report_base|null
+     */
+    protected function get_tool_report(): ?\tool_reportbuilder\report_base {
+        if ($this->toolreport === false) {
+            $this->toolreport = null;
+            if ($reportid = $this->config->report ?? 0) {
+                $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
+                try {
+                    $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
+                    if (tool_reportbuilder\permission::can_view($report)) {
+                        $this->toolreport = $report;
+                    }
+                } catch (moodle_exception $e) {
+                    return null;
+                }
+            }
+        }
+        return $this->toolreport;
     }
 }

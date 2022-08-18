@@ -24,6 +24,8 @@
  */
 namespace block_rbreport;
 
+use core_reportbuilder\local\helpers\audience;
+use core_reportbuilder\local\helpers\database;
 use moodle_url;
 use tool_reportbuilder\permission;
 
@@ -36,8 +38,13 @@ use tool_reportbuilder\permission;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manager {
+
     /**
      * List of available reports
+     *
+     * {@see \core_reportbuilder\local\systemreports\reports_list::filter_by_allowed_reports_sql()}
+     * {@see \tool_tenant\reportbuilder\local\callbacks::get_reports_list_tenant_fields() }
+     * {@see \tool_tenant\reportbuilder\local\callbacks::get_reports_list_tenant_clause() }
      *
      * @param string $pagetype
      * @param string|null $subpage
@@ -46,25 +53,104 @@ class manager {
      */
     public function get_report_options(string $pagetype, ?string $subpage, moodle_url $pageurl): array {
         global $DB;
+        $sql = 'type=:type';
+        $params = ['type' => \core_reportbuilder\local\report\base::TYPE_CUSTOM_REPORT];
+        [$tsql, $tparams] = $this->get_tenant_sql('r', $pagetype, $subpage, $pageurl);
+        [$asql, $aparams] = $this->get_audience_sql('r');
+        $records = $DB->get_records_sql(
+            'SELECT * FROM {reportbuilder_report} r
+            WHERE ' . $sql . ' AND ' . $tsql . ' AND ' . $asql . '
+            ORDER BY name, id',
+            $params + $aparams + $tparams);
+        $res = [];
+        foreach ($records as $record) {
+            $persistent = new \core_reportbuilder\local\models\report(0, $record);
+            $res[$record->id] = $persistent->get_formatted_name();
+        };
+        return $res;
+    }
+
+    /**
+     * SQL to filter reports based on the page tenant
+     *
+     * @param string $reporttablealias
+     * @param string $pagetype
+     * @param string|null $subpage
+     * @param moodle_url $pageurl
+     * @return array
+     */
+    protected function get_tenant_sql(string $reporttablealias, string $pagetype, ?string $subpage, moodle_url $pageurl): array {
+        global $DB;
+        $sharedspaceid = \tool_tenant\sharedspace::get_shared_space_id();
+        $mypage = $DB->get_record('my_pages', ['id' => (int)$subpage]);
+        if ($pagetype == 'my-index' && $pageurl->compare(new \moodle_url('/my/indexsys.php'), URL_MATCH_BASE)) {
+            if (!$sharedspaceid) {
+                return ["1=0", []];
+            }
+            $tenantid = $sharedspaceid;
+        } else if (!empty($mypage) && preg_match('/^tenant-([0-9]+)$/', $mypage->name, $matches, PREG_UNMATCHED_AS_NULL)) {
+            $tenantid = (int)$matches[1];
+        } else {
+            $tenantid = \tool_tenant\tenancy::get_actual_tenant_id();
+        }
+
+        $sql = "{$reporttablealias}.component=:component";
+        $params = ['component' => 'tool_tenant'];
+        [$tsql, $tparams] = \tool_tenant\hierarchy::filter_own_or_parent_shared_entities_sql("{$reporttablealias}.itemid",
+            "{$reporttablealias}.area = 'shared'", $tenantid);
+        return ["$sql AND $tsql", $params + $tparams];
+    }
+
+    /**
+     * SQL to filter reports based on the audience
+     *
+     * @param string $reporttablealias
+     * @return array
+     */
+    protected function get_audience_sql(string $reporttablealias): array {
+        global $USER;
+        if (has_capability('moodle/reportbuilder:editall', \context_system::instance())) {
+            return ['1=1', []];
+        }
+        [$asql, $aparams] = audience::user_reports_list_sql($reporttablealias);
+        if (has_capability('moodle/reportbuilder:edit', \context_system::instance())) {
+            // User can always see own reports and also those reports user is in audience of.
+            $paramuserid = database::generate_param_name();
+            $aparams += [$paramuserid => $USER->id];
+            $asql = "({$reporttablealias}.usercreated = :{$paramuserid} OR ($asql))";
+        }
+        return [$asql, $aparams];
+    }
+
+    /**
+     * List of available reports (tool_reportbuilder)
+     *
+     * @param string $pagetype
+     * @param string|null $subpage
+     * @param moodle_url $pageurl
+     * @return string[]
+     */
+    public function get_report_options_tool(string $pagetype, ?string $subpage, moodle_url $pageurl): array {
+        global $DB;
 
         $mypage = $DB->get_record('my_pages', ['id' => (int)$subpage]);
 
         if ($pagetype == 'my-index' && $pageurl->compare(new \moodle_url('/my/indexsys.php'), URL_MATCH_BASE)) {
-            return $this->get_shared_reports();
+            return $this->get_shared_reports_tool();
         } else if (!empty($mypage) && preg_match('/^tenant-([0-9]+)$/', $mypage->name, $matches, PREG_UNMATCHED_AS_NULL)) {
-            return $this->get_tenant_reports((int)$matches[1]);
+            return $this->get_tenant_reports_tool((int)$matches[1]);
         } else {
-            return $this->get_tenant_reports(\tool_tenant\tenancy::get_actual_tenant_id());
+            return $this->get_tenant_reports_tool(\tool_tenant\tenancy::get_actual_tenant_id());
         }
     }
 
     /**
-     * Returns user available reports of a tenant.
+     * Returns user available reports of a tenant (tool_reportbuilder)
      *
      * @param int $tenantid
      * @return string[]
      */
-    private function get_tenant_reports(int $tenantid): array {
+    private function get_tenant_reports_tool(int $tenantid): array {
         global $DB;
 
         [$select, $selectparams] = \tool_tenant\hierarchy::filter_own_or_parent_shared_entities_sql('tenantid',
@@ -88,11 +174,11 @@ class manager {
     }
 
     /**
-     * Returns user available shared reports.
+     * Returns user available shared reports (tool_reportbuilder)
      *
      * @return string[]
      */
-    private function get_shared_reports(): array {
+    private function get_shared_reports_tool(): array {
         $sharedspaceid = \tool_tenant\sharedspace::get_shared_space_id();
 
         // If shared space isn't enabled then there are no shared reports.
@@ -100,6 +186,6 @@ class manager {
             return [];
         }
 
-        return $this->get_tenant_reports($sharedspaceid);
+        return $this->get_tenant_reports_tool($sharedspaceid);
     }
 }

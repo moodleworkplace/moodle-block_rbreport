@@ -43,3 +43,5 @@ $string['privacy:metadata:block'] = 'The Report block stores all of its data wit
 $string['rbreport:addinstance'] = 'Add a new Report block';
 $string['rbreport:myaddinstance'] = 'Add a new Report block to Dashboard';
 $string['reportnotsetmessage'] = 'Please configure this block and select which report it should display.';
+$string['reporttypecore'] = 'Custom report';
+$string['reporttypetool'] = 'Legacy custom report (from Workplace 3.11)';

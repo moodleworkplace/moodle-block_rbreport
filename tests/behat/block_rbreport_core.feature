@@ -1,5 +1,5 @@
 @block @block_rbreport @moodleworkplace @javascript
-Feature: The Report block allows users to view custom reports from tool_reportbuilder
+Feature: The Report block allows users to view custom reports from core reportbuilder
   In order to view report builder custom reports
   As a user
   I can add the Report block to show a custom report
@@ -10,15 +10,20 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And the following users allocations to tenants exist:
       | user  | tenant  |
       | admin | Tenant1 |
-    And the following "tool_reportbuilder > reports" exist:
+    Given the following "tool_tenant > reports" exist:
       | name    | tenant  | source                                                              |
-      | Report1 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
-      | Report2 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
-      | Report3 | Tenant2 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
+      | Report1 | Tenant1 | core_user\reportbuilder\datasource\users |
+      | Report2 | Tenant1 | core_user\reportbuilder\datasource\users |
+      | Report3 | Tenant2 | core_user\reportbuilder\datasource\users |
 
-  Scenario: Configure a Report block added by tenantadmin in the tenant dashboard as normal user (tool_reportbuilder)
+  Scenario: Configure a Report block added by tenantadmin in the tenant dashboard as normal user
     # Add a Report block to the tenant dashboard.
     When I log in as "tenantadmin1"
+    # TODO remove next four lines after MDL-75519 or MDL-75525
+    And I am on the "Report1" "reportbuilder > Editor" page
+    And I click on "Show/hide 'Sorting'" "button"
+    And I click on "Enable sorting for column 'Full name'" "checkbox"
+    And I click on "Close 'Report1' editor" "button"
     And I navigate to "Appearance" in workplace launcher
     And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
     And I press "Create personalised dashboard..."
@@ -28,8 +33,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I add the "Report" block
     And I should see "Please configure this block and select which report it should display." in the "Report" "block"
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report2" "autocomplete_suggestions" should exist
     And "Report3" "autocomplete_suggestions" should not exist
     And I click on "Report1" item in the autocomplete list
@@ -42,16 +46,17 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I should see "Error occurred while retrieving the report" in the "Report" "block"
     And I configure the "Report" block
-    And I should not see "Legacy custom report"
+    And I open the autocomplete suggestions list
+    And "Report1" "autocomplete_suggestions" should not exist
     And I press "Cancel"
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Edit content" "link" in the "Report1" "table_row"
-    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
-    And I click on "Manually added users" "link"
-    And I set the field "Add users manually" to "User11"
+    And I navigate to "Custom reports" in workplace launcher
+    And I press "Edit report content" action in the "Report1" report row
+    And I click on the "Audience" dynamic tab
+    And I click on "Add audience 'Manually added users'" "link"
+    And I set the field "Add users manually" to "User 11"
     And I press "Save changes"
     And I log out
     # Check custom Report1 block appears in user11 dashboard.
@@ -59,15 +64,15 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I should see "User 11" in the "Report1" "block"
     And I switch editing mode on
     And I configure the "Report1" block
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report1" "autocomplete_selection" should exist
     And "Report2" "autocomplete_suggestions" should not exist
     And I log out
     # Now remove Report1.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Delete report" "link" in the "Report1" "table_row"
-    And I click on "Delete" "button" in the "Confirm" "dialogue"
+    And I navigate to "Custom reports" in workplace launcher
+    And I press "Delete report" action in the "Report1" report row
+    And I click on "Delete" "button" in the "Delete report" "dialogue"
     And I log out
     # Check Report1 block does not appear for user.
     And I log in as "user11"
@@ -75,13 +80,18 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I should see "Error occurred while retrieving the report" in the "Report" "block"
 
-  Scenario: View a Report block added by tenantadmin in the tenant dashboard as normal user (no block editing permissions) (tool_reportbuilder)
+  Scenario: View a Report block added by tenantadmin in the tenant dashboard as normal user (no block editing permissions)
     Given the following "permission overrides" exist:
       | capability                   | permission     | role                  | contextlevel | reference |
       | moodle/my:manageblocks       | Prevent        | user                  | System       |           |
       | moodle/my:manageblocks       | Allow          | tool_tenant_admin     | System       |           |
     # Add a Report block to the tenant dashboard.
     When I log in as "tenantadmin1"
+    # TODO remove next four lines after MDL-75519 or MDL-75525
+    And I am on the "Report1" "reportbuilder > Editor" page
+    And I click on "Show/hide 'Sorting'" "button"
+    And I click on "Enable sorting for column 'Full name'" "checkbox"
+    And I click on "Close 'Report1' editor" "button"
     And I navigate to "Appearance" in workplace launcher
     And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
     And I press "Create personalised dashboard..."
@@ -90,9 +100,8 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
-    And I click on "Report1" item in the autocomplete list
+    And I set the following fields to these values:
+      | Select report     | Report1 |
     And I press "Save changes"
     And I log out
     # Check custom Report1 block does not appear in user11 dashboard (not in report audience).
@@ -101,10 +110,10 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Edit content" "link" in the "Report1" "table_row"
-    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
-    And I click on "Manually added users" "link"
+    And I navigate to "Custom reports" in workplace launcher
+    And I press "Edit report content" action in the "Report1" report row
+    And I click on the "Audience" dynamic tab
+    And I click on "Add audience 'Manually added users'" "link"
     And I set the field "Add users manually" to "User11"
     And I press "Save changes"
     And I log out
@@ -114,15 +123,15 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I log out
     # Now remove Report1.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Delete report" "link" in the "Report1" "table_row"
-    And I click on "Delete" "button" in the "Confirm" "dialogue"
+    And I navigate to "Custom reports" in workplace launcher
+    And I press "Delete report" action in the "Report1" report row
+    And I click on "Delete" "button" in the "Delete report" "dialogue"
     And I log out
     # Check Report1 block does not appear for user.
     And I log in as "user11"
     And "Report" "block" should not exist
 
-  Scenario: Configure a Report block added by admin in a tenant dashboard as normal user (tool_reportbuilder)
+  Scenario: Configure a Report block added by admin in a tenant dashboard as normal user
     # Add a Report block to the tenant1 dashboard.
     When I log in as "admin"
     And I navigate to "All tenants" in workplace launcher
@@ -134,39 +143,38 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should not exist
     And "Report2" "autocomplete_suggestions" should not exist
     And I click on "Report3" item in the autocomplete list
     And I press "Save changes"
     # Now add user21 in Report3 audiences.
     And I switch to tenant "Tenant2"
-    And I navigate to "Report builder" in workplace launcher
-    And I click on "Edit content" "link" in the "Report3" "table_row"
-    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
-    And I click on "Manually added users" "link"
+    And I navigate to "Custom reports" in workplace launcher
+    And I press "Edit report content" action in the "Report3" report row
+    And I click on the "Audience" dynamic tab
+    And I click on "Add audience 'Manually added users'" "link"
     And I set the field "Add users manually" to "User21"
     And I press "Save changes"
     And I log out
     # Check custom Report3 block appears in user11 dashboard.
     And I log in as "user21"
-    And I should see "User 21" in the "Report3" "block"
+    # TODO WP-3629 uncomment the next line
+    #And I should see "User 21" in the "Report3" "block"
     And I switch editing mode on
     And I configure the "Report3" block
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report3" "autocomplete_selection" should exist
     And "Report1" "autocomplete_suggestions" should not exist
     And "Report2" "autocomplete_suggestions" should not exist
 
-  Scenario: View a Report block as tenantadmin (tool_reportbuilder)
+  Scenario: View a Report block as tenantadmin
     When I log in as "tenantadmin1"
     Then I switch editing mode on
     And I add the "Report" block
     And I should see "Please configure this block and select which report it should display." in the "Report" "block"
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should exist
     And "Report3" "autocomplete_suggestions" should not exist
     And I click on "Report2" item in the autocomplete list
@@ -174,15 +182,15 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I should see "User 11" in the "Report2" "block"
     And I follow "Go to full report"
     And I should see "Report builder" in the ".breadcrumb" "css_element"
-    And I should see "Report2" in the ".breadcrumb" "css_element"
+    And I should see "Report2" in the "h1" "css_element"
 
-  Scenario: Create a Report block as normal user (tool_reportbuilder)
+  Scenario: Create a Report block as normal user
     # First add user11 in Report1 audiences.
     When I log in as "tenantadmin1"
-    Then I navigate to "Report builder" in workplace launcher
-    And I click on "Edit content" "link" in the "Report1" "table_row"
-    And I click on "Audience" "link" in the "[role=tablist]" "css_element"
-    And I click on "Manually added users" "link"
+    Then I navigate to "Custom reports" in workplace launcher
+    And I press "Edit report content" action in the "Report1" report row
+    And I click on the "Audience" dynamic tab
+    And I click on "Add audience 'Manually added users'" "link"
     And I set the field "Add users manually" to "User11"
     And I press "Save changes"
     And I log out
@@ -196,53 +204,59 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And "Report" "block" should not exist
     And I switch editing mode on
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
+    And I open the autocomplete suggestions list
     And "Report2" "autocomplete_suggestions" should not exist
     And "Report3" "autocomplete_suggestions" should not exist
     And I click on "Report1" item in the autocomplete list
     And I press "Save changes"
     And I should see "User 11" in the "Report1" "block"
 
-  Scenario: Edit pagination setting in Report block (tool_reportbuilder)
+  Scenario: Edit pagination setting in Report block
     # Create two blocks with different pagination setting.
     When I log in as "tenantadmin1"
+    # TODO remove next four lines after MDL-75519 or MDL-75525
+    And I am on the "Report1" "reportbuilder > Editor" page
+    And I click on "Show/hide 'Sorting'" "button"
+    And I click on "Enable sorting for column 'Full name'" "checkbox"
+    And I click on "Close 'Report1' editor" "button"
+    And I am on homepage
     Then I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
-    And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
-      | Entries per page  | 5       |
+      | Block title       | RepA |
+      | Select report     | Report1  |
+      | Entries per page  | 5        |
     And I press "Save changes"
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
-    And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
-      | Block title       | Report1B |
+      | Block title       | RepB |
+      | Select report     | Report1  |
       | Entries per page  | 10       |
     And I press "Save changes"
-    And I should see "User 11" in the "Report1" "block"
-    And I should not see "User 16" in the "Report1" "block"
-    And I should see "User 11" in the "Report1B" "block"
-    And I should see "User 16" in the "Report1B" "block"
+    And I should see "User 11" in the "RepA" "block"
+    And I should not see "User 16" in the "RepA" "block"
+    And I should see "User 11" in the "RepB" "block"
+    And I should see "User 16" in the "RepB" "block"
     # Change to page 2.
-    And I click on "2" "link" in the "Report1" "block"
-    And I should see "User 16" in the "Report1" "block"
+    And I click on "2" "link" in the "RepA" "block"
+    And I should see "User 16" in the "RepA" "block"
 
-  Scenario: Edit layout setting in Report block (tool_reportbuilder)
+  Scenario: Edit layout setting in Report block
     When I log in as "tenantadmin1"
+    # TODO remove next five lines after MDL-75519 or MDL-75525
+    And I am on the "Report1" "reportbuilder > Editor" page
+    And I click on "Show/hide 'Sorting'" "button"
+    And I click on "Enable sorting for column 'Full name'" "checkbox"
+    And I click on "Close 'Report1' editor" "button"
+    And I am on homepage
     And I change window size to "large"
     Then I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
-    And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
+      | Select report     | Report1 |
       | Layout            | Cards   |
       | Region            | content |
       | Weight            | -1      |
@@ -258,8 +272,9 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I press "Save changes"
     And I change window size to "530x678"
     # Forcing Table view show table also in small screens.
-    And I should see "User 11" in the "Report1" "block"
-    And I should see "user11@invalid.com" in the "Report1" "block"
+    # TODO WP-3659 uncomment
+#    And I should see "User 11" in the "Report1" "block"
+#    And I should see "user11@invalid.com" in the "Report1" "block"
     And I am on homepage
     And I configure the "Report1" block
     And I set the following fields to these values:
@@ -273,30 +288,29 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I should see "User 11" in the "Report1" "block"
     And I should see "user11@invalid.com" in the "Report1" "block"
 
-  Scenario: Add a Report block in a page with a system report (tool_reportbuilder)
+  Scenario: Add a Report block in a page with a system report
     When I log in as "admin"
     # Go to 'Report Builder' page because it has a system report.
-    And I navigate to "Report builder" in workplace launcher
-    And I should see "Report1" in the ".system-report" "css_element"
-    And I should not see "User 11" in the ".system-report" "css_element"
+    And I navigate to "Custom reports" in workplace launcher
+    And I should see "Report1" in the "[data-region='core_reportbuilder/report']" "css_element"
+    And I should not see "User 11" in the "[data-region='core_reportbuilder/report']" "css_element"
     # Now add a Report block.
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
-    And I open the autocomplete suggestions list for legacy custom reports
-    And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
       | Block title        | Users report |
+      | Select report     | Report1      |
     And I press "Save changes"
     And I should see "User 11" in the "Users report" "block"
     And I should not see "Report1" in the "Users report" "block"
     # Filter and reset the system report.
-    And I click on "Show/hide filters sidebar" "button" in the "region-main" "region"
-    And I set the field "tool_reportbuilder:source_op" to "isn't equal to"
-    And I click on "Reset table" "button" in the "region-main" "region"
+    And I click on "Filters" "button" in the "region-main" "region"
+    And I set the field "report:source_operator" to "Is not equal to"
+    And I click on "Apply" "button" in the "[data-region='core_reportbuilder/report'][data-report-type='1']" "css_element"
+    And I click on "Reset all" "button" in the "region-main" "region"
     # Check that both reports are showing the correct data.
-    And I should see "Report1" in the ".system-report" "css_element"
-    And I should not see "User 11" in the ".system-report" "css_element"
+    And I should see "Report1" in the "[data-region='core_reportbuilder/report'][data-report-type='1']" "css_element"
+    And I should not see "User 11" in the "[data-region='core_reportbuilder/report'][data-report-type='1']" "css_element"
     And I should see "User 11" in the "Users report" "block"
     And I should not see "Report1" in the "Users report" "block"

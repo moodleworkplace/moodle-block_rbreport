@@ -33,13 +33,18 @@ class block_rbreport_edit_form extends block_edit_form {
     /** Always display as table. */
     const LAYOUT_TABLE = 'table';
 
+    /** @var int */
+    const REPORTTYPE_CORE = 1;
+    /** @var int */
+    const REPORTTYPE_TOOL = 0;
+
     /** @var block_rbreport */
     public $block;
 
     /**
      * Block settings definitions
      *
-     * @param object $mform
+     * @param MoodleQuickForm $mform
      * @throws coding_exception
      */
     protected function specific_definition($mform) {
@@ -49,14 +54,41 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_rbreport'));
         $mform->setType('config_title', PARAM_TEXT);
 
-        $options = (new manager())->get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
+        // Check if there are any legacy reports present, if there are, display a report type selector.
+        $optionstool = (new manager())->get_report_options_tool($this->page->pagetype, $this->page->subpage, $this->page->url);
+        $optionscore = (new manager())->get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
         // Add empty option on first load to avoid autocomplete selecting the first option automatically.
-        if (!isset($this->block->config)) {
-            $options = ['' => ''] + $options;
+        if (!isset($this->block->config->corereport)) {
+            $optionscore = ['' => ''] + $optionscore;
         }
-        $mform->addElement('autocomplete', 'config_report', get_string('configreport', 'block_rbreport'), $options);
-        $mform->addHelpButton('config_report', 'configreport', 'block_rbreport');
-        $mform->addRule('config_report', get_string('required'), 'required', null, 'client');
+        if ($optionstool && !isset($this->block->config->report)) {
+            $optionstool = ['' => ''] + $optionstool;
+        }
+
+        if ($optionstool) {
+            $group = [];
+            $group[] = $mform->createElement('radio', 'config_reporttype', '',
+                get_string('reporttypecore', 'block_rbreport'), self::REPORTTYPE_CORE);
+            $group[] = $mform->createElement('autocomplete', 'config_corereport',
+                get_string('configreport', 'block_rbreport'), $optionscore);
+            $mform->hideIf('config_corereport', 'config_reporttype', 'ne', self::REPORTTYPE_CORE);
+
+            $group[] = $mform->createElement('radio', 'config_reporttype', '',
+                get_string('reporttypetool', 'block_rbreport'), self::REPORTTYPE_TOOL);
+            $group[] = $mform->createElement('autocomplete', 'config_report',
+                get_string('configreport', 'block_rbreport') . ': '.get_string('reporttypetool', 'block_rbreport'),
+                $optionstool);
+            $mform->hideIf('config_report', 'config_reporttype', 'ne', self::REPORTTYPE_TOOL);
+
+            $mform->addGroup($group, 'config_grp', get_string('configreport', 'block_rbreport'),
+                '<div class="w-100 mdl-left"></div>', false);
+            $mform->addHelpButton('config_grp', 'configreport', 'block_rbreport');
+        } else {
+            $mform->addElement('hidden', 'config_reporttype', self::REPORTTYPE_CORE);
+            $mform->setType('config_reporttype', PARAM_INT);
+            $mform->addElement('autocomplete', 'config_corereport', get_string('configreport', 'block_rbreport'), $optionscore);
+            $mform->addHelpButton('config_corereport', 'configreport', 'block_rbreport');
+        }
 
         $options = [
             self::LAYOUT_ADAPTIVE => get_string('displayadaptive', 'block_rbreport'),
@@ -71,5 +103,67 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addElement('select', 'config_pagesize', get_string('entriesperpage', 'block_rbreport'), $cardsarray);
         $mform->setDefault('config_pagesize', 5);
         $mform->setType('config_pagesize', PARAM_INT);
+    }
+
+    /**
+     * Form validation
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function validation($data, $files) {
+        $errorelement = $this->_form->elementExists('config_grp') ? 'config_grp' : 'config_corereport';
+        $errors = [];
+        $reporttype = $data['config_reporttype'] ?? 0;
+        if ($reporttype == self::REPORTTYPE_TOOL) {
+            if (empty($data['config_report'])) {
+                $errors[$errorelement] = get_string('required');
+            }
+        } else {
+            if (empty($data['config_corereport'])) {
+                $errors[$errorelement] = get_string('required');
+            }
+        }
+        return $errors;
+    }
+
+    /**
+     * Set data
+     *
+     * @param array $defaults
+     */
+    public function set_data($defaults) {
+        if (!isset($this->block->config)) {
+            $this->block->config = new stdClass();
+        }
+        if (!isset($this->block->config->reporttype)) {
+            // Setting 'config_reporttype' must be always set, so there is always one radio button selected.
+            if (!empty($this->block->config->report)) {
+                // This is most likely a report with old configuration from Workplace 3.11.
+                $this->block->config->reporttype = self::REPORTTYPE_TOOL;
+            } else {
+                $this->block->config->reporttype = self::REPORTTYPE_CORE;
+            }
+        }
+        parent::set_data($defaults);
+    }
+
+    /**
+     * Get data
+     *
+     * @return stdClass
+     */
+    public function get_data() {
+        if ($data = parent::get_data()) {
+            // Make sure we only save one report id - either for the tool or for the core.
+            $reporttype = $data->config_reporttype ?? -1;
+            if ($reporttype == self::REPORTTYPE_CORE) {
+                $data->config_report = null;
+            } else if ($reporttype == self::REPORTTYPE_TOOL) {
+                $data->config_corereport = null;
+            }
+        }
+        return $data;
     }
 }

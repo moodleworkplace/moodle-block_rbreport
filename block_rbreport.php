@@ -141,7 +141,12 @@ class block_rbreport extends block_base {
     protected function get_core_report(): ?\core_reportbuilder\local\report\base {
         if ($this->corereport === false) {
             $this->corereport = null;
-            if ($reportid = $this->config->corereport ?? 0) {
+            $reportid = $this->config->corereport ?? 0;
+            if (!$reportid && ($oldreportid = $this->config->report ?? 0)) {
+                // Check maybe the old report was converted already.
+                $reportid = get_config('tool_reportbuilder', 'converted-'.$oldreportid);
+            }
+            if ($reportid) {
                 try {
                     $report = \core_reportbuilder\manager::get_report_from_id($reportid);
                     if (\core_reportbuilder\permission::can_view_report($report->get_report_persistent())) {

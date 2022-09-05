@@ -143,6 +143,7 @@ Feature: The Report block allows users to view custom reports from core reportbu
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
+    And I set the field "Entries per page" to "10"
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should not exist
     And "Report2" "autocomplete_suggestions" should not exist
@@ -159,8 +160,7 @@ Feature: The Report block allows users to view custom reports from core reportbu
     And I log out
     # Check custom Report3 block appears in user11 dashboard.
     And I log in as "user21"
-    # TODO WP-3629 uncomment the next line
-    #And I should see "User 21" in the "Report3" "block"
+    And I should see "User 21" in the "Report3" "block"
     And I switch editing mode on
     And I configure the "Report3" block
     And I open the autocomplete suggestions list

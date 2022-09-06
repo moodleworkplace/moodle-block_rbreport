@@ -146,6 +146,14 @@ class block_rbreport_edit_form extends block_edit_form {
                 $this->block->config->reporttype = self::REPORTTYPE_CORE;
             }
         }
+        // If it's an old report check if it may have been converted already.
+        if (!empty($this->block->config->report)) {
+            if ($reportid = get_config('tool_reportbuilder', 'converted-'.((int)$this->block->config->report))) {
+                $this->block->config->corereport = $reportid;
+                $this->block->config->report = null;
+                $this->block->config->reporttype = self::REPORTTYPE_CORE;
+            }
+        }
         parent::set_data($defaults);
     }
 

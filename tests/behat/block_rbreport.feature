@@ -15,6 +15,9 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
       | Report1 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
       | Report2 | Tenant1 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
       | Report3 | Tenant2 | tool_reportbuilder\tool_reportbuilder\datasources\report_users_list |
+    And the following "permission overrides" exist:
+      | capability              | permission | role              | contextlevel | reference |
+      | tool/reportbuilder:edit | Allow      | tool_tenant_admin | System       |           |
 
   Scenario: Configure a Report block added by tenantadmin in the tenant dashboard as normal user (tool_reportbuilder)
     # Add a Report block to the tenant dashboard.
@@ -28,7 +31,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I add the "Report" block
     And I should see "Please configure this block and select which report it should display." in the "Report" "block"
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And "Report2" "autocomplete_suggestions" should exist
     And "Report3" "autocomplete_suggestions" should not exist
@@ -42,12 +45,12 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I should see "Error occurred while retrieving the report" in the "Report" "block"
     And I configure the "Report" block
-    And I should not see "Legacy custom report"
+    And I should not see "Custom report from outdated Report builder"
     And I press "Cancel"
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Edit content" "link" in the "Report1" "table_row"
     And I click on "Audience" "link" in the "[role=tablist]" "css_element"
     And I click on "Manually added users" "link"
@@ -65,7 +68,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I log out
     # Now remove Report1.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Delete report" "link" in the "Report1" "table_row"
     And I click on "Delete" "button" in the "Confirm" "dialogue"
     And I log out
@@ -90,7 +93,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And I click on "Report1" item in the autocomplete list
     And I press "Save changes"
@@ -101,7 +104,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Edit content" "link" in the "Report1" "table_row"
     And I click on "Audience" "link" in the "[role=tablist]" "css_element"
     And I click on "Manually added users" "link"
@@ -114,7 +117,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I log out
     # Now remove Report1.
     And I log in as "tenantadmin1"
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Delete report" "link" in the "Report1" "table_row"
     And I click on "Delete" "button" in the "Confirm" "dialogue"
     And I log out
@@ -134,7 +137,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And "Report1" "autocomplete_suggestions" should not exist
     And "Report2" "autocomplete_suggestions" should not exist
@@ -142,7 +145,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I press "Save changes"
     # Now add user21 in Report3 audiences.
     And I switch to tenant "Tenant2"
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Edit content" "link" in the "Report3" "table_row"
     And I click on "Audience" "link" in the "[role=tablist]" "css_element"
     And I click on "Manually added users" "link"
@@ -165,7 +168,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I add the "Report" block
     And I should see "Please configure this block and select which report it should display." in the "Report" "block"
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And "Report1" "autocomplete_suggestions" should exist
     And "Report3" "autocomplete_suggestions" should not exist
@@ -179,7 +182,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
   Scenario: Create a Report block as normal user (tool_reportbuilder)
     # First add user11 in Report1 audiences.
     When I log in as "tenantadmin1"
-    Then I navigate to "Report builder" in workplace launcher
+    Then I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I click on "Edit content" "link" in the "Report1" "table_row"
     And I click on "Audience" "link" in the "[role=tablist]" "css_element"
     And I click on "Manually added users" "link"
@@ -196,7 +199,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And "Report" "block" should not exist
     And I switch editing mode on
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And "Report2" "autocomplete_suggestions" should not exist
     And "Report3" "autocomplete_suggestions" should not exist
@@ -210,7 +213,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     Then I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
@@ -218,7 +221,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I press "Save changes"
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
@@ -239,7 +242,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     Then I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:
@@ -276,14 +279,14 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
   Scenario: Add a Report block in a page with a system report (tool_reportbuilder)
     When I log in as "admin"
     # Go to 'Report Builder' page because it has a system report.
-    And I navigate to "Report builder" in workplace launcher
+    And I navigate to "Reports > Report builder - outdated version > Manage custom reports" in site administration
     And I should see "Report1" in the ".system-report" "css_element"
     And I should not see "User 11" in the ".system-report" "css_element"
     # Now add a Report block.
     And I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
-    And I click on "Legacy custom report" "text"
+    And I click on "Custom report from outdated Report builder" "text"
     And I open the autocomplete suggestions list for legacy custom reports
     And I click on "Report1" item in the autocomplete list
     And I set the following fields to these values:

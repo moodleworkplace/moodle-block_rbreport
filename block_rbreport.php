@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use core_reportbuilder\external\custom_report_exporter;
-
 /**
  * Custom report block.
  *
@@ -131,6 +129,18 @@ class block_rbreport extends block_base {
      */
     public function instance_allow_multiple() {
         return true;
+    }
+
+    /**
+     * Return the plugin config settings for external functions
+     *
+     * @return stdClass
+     */
+    public function get_config_for_external() {
+        return (object) [
+            'instance' => (object) $this->config,
+            'plugin' => (object) [],
+        ];
     }
 
     /**

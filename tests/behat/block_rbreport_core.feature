@@ -19,11 +19,6 @@ Feature: The Report block allows users to view custom reports from core reportbu
   Scenario: Configure a Report block added by tenantadmin in the tenant dashboard as normal user
     # Add a Report block to the tenant dashboard.
     When I log in as "tenantadmin1"
-    # TODO remove next four lines after MDL-75519 or MDL-75525
-    And I am on the "Report1" "reportbuilder > Editor" page
-    And I click on "Show/hide 'Sorting'" "button"
-    And I click on "Enable sorting for column 'Full name'" "checkbox"
-    And I click on "Close 'Report1' editor" "button"
     And I navigate to "Appearance" in workplace launcher
     And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
     And I press "Create personalised dashboard..."
@@ -87,11 +82,6 @@ Feature: The Report block allows users to view custom reports from core reportbu
       | moodle/my:manageblocks       | Allow          | tool_tenant_admin     | System       |           |
     # Add a Report block to the tenant dashboard.
     When I log in as "tenantadmin1"
-    # TODO remove next four lines after MDL-75519 or MDL-75525
-    And I am on the "Report1" "reportbuilder > Editor" page
-    And I click on "Show/hide 'Sorting'" "button"
-    And I click on "Enable sorting for column 'Full name'" "checkbox"
-    And I click on "Close 'Report1' editor" "button"
     And I navigate to "Appearance" in workplace launcher
     And I click on "Dashboard" "link" in the "[role=tablist]" "css_element"
     And I press "Create personalised dashboard..."
@@ -214,12 +204,6 @@ Feature: The Report block allows users to view custom reports from core reportbu
   Scenario: Edit pagination setting in Report block
     # Create two blocks with different pagination setting.
     When I log in as "tenantadmin1"
-    # TODO remove next four lines after MDL-75519 or MDL-75525
-    And I am on the "Report1" "reportbuilder > Editor" page
-    And I click on "Show/hide 'Sorting'" "button"
-    And I click on "Enable sorting for column 'Full name'" "checkbox"
-    And I click on "Close 'Report1' editor" "button"
-    And I am on homepage
     Then I switch editing mode on
     And I add the "Report" block
     And I configure the "Report" block
@@ -245,12 +229,6 @@ Feature: The Report block allows users to view custom reports from core reportbu
 
   Scenario: Edit layout setting in Report block
     When I log in as "tenantadmin1"
-    # TODO remove next five lines after MDL-75519 or MDL-75525
-    And I am on the "Report1" "reportbuilder > Editor" page
-    And I click on "Show/hide 'Sorting'" "button"
-    And I click on "Enable sorting for column 'Full name'" "checkbox"
-    And I click on "Close 'Report1' editor" "button"
-    And I am on homepage
     And I change window size to "large"
     Then I switch editing mode on
     And I add the "Report" block

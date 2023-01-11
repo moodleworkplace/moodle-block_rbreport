@@ -27,12 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_rbreport';
 $plugin->release = '4.1';
-$plugin->version = 2023011100;
+$plugin->version = 2023011400;
 $plugin->requires = 2022112800.00;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
-    'tool_wp'            => 2023011100,
-    'tool_tenant'        => 2023011100,
-    'tool_reportbuilder' => 2023011100
+    'tool_wp'            => 2023011400,
+    'tool_tenant'        => 2023011400,
+    'tool_reportbuilder' => 2023011400
 ];
 

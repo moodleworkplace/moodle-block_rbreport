@@ -44,7 +44,9 @@ class manager_tool_test extends advanced_testcase {
         global $DB;
 
         $sharedspaceid = \tool_tenant\sharedspace::enable_shared_space();
+        /** @var \tool_tenant_generator $tenantgenerator */
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
+        /** @var \tool_reportbuilder_generator $rbgenerator */
         $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
 
         // Create tenants and users.
@@ -121,7 +123,9 @@ class manager_tool_test extends advanced_testcase {
     public function test_get_report_options_tool_disabled_shared_space(): void {
         global $DB;
 
+        /** @var \tool_tenant_generator $tenantgenerator */
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
+        /** @var \tool_reportbuilder_generator $rbgenerator */
         $rbgenerator = $this->getDataGenerator()->get_plugin_generator('tool_reportbuilder');
 
         // Create tenants and users.

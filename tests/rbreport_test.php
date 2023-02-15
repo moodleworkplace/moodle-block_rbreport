@@ -45,6 +45,7 @@ class rbreport_test extends advanced_testcase {
     public function test_get_config_for_external(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
+        /** @var \core_reportbuilder_generator $rbgenerator */
         $rbgenerator = $this->getDataGenerator()->get_plugin_generator('core_reportbuilder');
 
         // Create course and add rbreport block.

@@ -137,9 +137,11 @@ class block_rbreport extends block_base {
      * @return stdClass
      */
     public function get_config_for_external() {
+        $instanceconfigs = !empty($this->config) ? $this->config : new stdClass();
+
         return (object) [
-            'instance' => (object) $this->config,
-            'plugin' => (object) [],
+            'instance' => $instanceconfigs,
+            'plugin' => new stdClass(),
         ];
     }
 

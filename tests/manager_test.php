@@ -46,6 +46,7 @@ class manager_test extends advanced_testcase {
         global $DB;
 
         $sharedspaceid = \tool_tenant\sharedspace::enable_shared_space();
+        /** @var \tool_tenant_generator $tenantgenerator */
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
         /** @var \core_reportbuilder_generator $rbgenerator */
         $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');
@@ -143,6 +144,7 @@ class manager_test extends advanced_testcase {
         $roleid = $DB->get_field('role', 'id', ['shortname' => 'user']);
         role_change_permission($roleid, \context_system::instance(), 'moodle/reportbuilder:edit', CAP_ALLOW);
 
+        /** @var \tool_tenant_generator $tenantgenerator */
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
         /** @var \core_reportbuilder_generator $rbgenerator */
         $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');
@@ -176,6 +178,7 @@ class manager_test extends advanced_testcase {
     public function test_get_report_options_disabled_shared_space(): void {
         global $DB;
 
+        /** @var \tool_tenant_generator $tenantgenerator */
         $tenantgenerator = $this->getDataGenerator()->get_plugin_generator('tool_tenant');
         /** @var \core_reportbuilder_generator $rbgenerator */
         $rbgenerator = self::getDataGenerator()->get_plugin_generator('core_reportbuilder');

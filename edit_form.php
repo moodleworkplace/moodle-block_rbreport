@@ -41,7 +41,9 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->setType('config_title', PARAM_TEXT);
 
         // Check if there are any legacy reports present, if there are, display a report type selector.
-        $optionstool = (new manager())->get_report_options_tool($this->page->pagetype, $this->page->subpage, $this->page->url);
+        $optionstool = component_class_callback(\tool_tenant\local\block_rbreport::class,
+            'get_report_options_tool',
+            [$this->page->pagetype, $this->page->subpage, $this->page->url], []);
         $optionscore = (new manager())->get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
         // Add empty option on first load to avoid autocomplete selecting the first option automatically.
         if (!isset($this->block->config->corereport)) {
@@ -117,7 +119,7 @@ class block_rbreport_edit_form extends block_edit_form {
     /**
      * Set data
      *
-     * @param array $defaults
+     * @param array|stdClass $defaults
      */
     public function set_data($defaults) {
         if (!isset($this->block->config)) {
@@ -133,12 +135,11 @@ class block_rbreport_edit_form extends block_edit_form {
             }
         }
         // If it's an old report check if it may have been converted already.
-        if (!empty($this->block->config->report)) {
-            if ($reportid = get_config('tool_reportbuilder', 'converted-'.((int)$this->block->config->report))) {
-                $this->block->config->corereport = $reportid;
-                $this->block->config->report = null;
-                $this->block->config->reporttype = constants::REPORTTYPE_CORE;
-            }
+        if ($reportid = component_class_callback(\tool_tenant\local\block_rbreport::class,
+                'get_converted_report_id', [$this->block->config], 0)) {
+            $this->block->config->corereport = $reportid;
+            $this->block->config->report = null;
+            $this->block->config->reporttype = constants::REPORTTYPE_CORE;
         }
         parent::set_data($defaults);
     }
@@ -159,5 +160,14 @@ class block_rbreport_edit_form extends block_edit_form {
             }
         }
         return $data;
+    }
+
+    /**
+     * Display the configuration form when block is being added to the page
+     *
+     * @return bool
+     */
+    public static function display_form_when_adding(): bool {
+        return true;
     }
 }

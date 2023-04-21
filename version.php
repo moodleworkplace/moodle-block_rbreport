@@ -30,9 +30,3 @@ $plugin->release = '4.2dev';
 $plugin->version = 2023042900;
 $plugin->requires = 2023042400.00;
 $plugin->maturity = MATURITY_STABLE;
-$plugin->dependencies = [
-    'tool_wp'            => 2023042900,
-    'tool_tenant'        => 2023042900,
-    'tool_reportbuilder' => 2023042900
-];
-

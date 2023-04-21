@@ -49,6 +49,8 @@ class block_rbreport extends block_base {
     /**
      * Returns the block contents.
      *
+     * @uses \tool_tenant\local\block_rbreport::display_report()
+     *
      * @return stdClass The block contents.
      */
     public function get_content() {
@@ -84,13 +86,12 @@ class block_rbreport extends block_base {
             $fullreporturl = new moodle_url('/reportbuilder/view.php', ['id' => $report->get_report_persistent()->get('id')]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else if ($report = $this->get_tool_report()) {
-            $outputpage = new tool_reportbuilder\output\report_view($report, false);
-            $output = $this->page->get_renderer('tool_reportbuilder');
+            [$text, $footer] = component_class_callback(\tool_tenant\local\block_rbreport::class,
+                'display_report', [$report, $this->page], ['', '']);
             $configlayout = $this->config->layout ?? '';
             $layoutclass = !empty($configlayout) ? 'rblayout rblayout-' . $this->config->layout : '';
-            $this->content->text = html_writer::div($output->render($outputpage), $layoutclass);
-            $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
-            $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
+            $this->content->text = html_writer::div($text, $layoutclass);
+            $this->content->footer = $footer;
         } else {
             $this->content->text = $this->user_can_edit() && $this->page->user_is_editing() ? $this->statusmessage : '';
         }
@@ -158,16 +159,16 @@ class block_rbreport extends block_base {
     /**
      * Get current report
      *
+     * @uses \tool_tenant\local\block_rbreport::get_converted_report_id()
+     *
      * @return \core_reportbuilder\local\report\base|null
      */
     protected function get_core_report(): ?\core_reportbuilder\local\report\base {
         if ($this->corereport === false) {
             $this->corereport = null;
-            $reportid = $this->config->corereport ?? 0;
-            if (!$reportid && ($oldreportid = $this->config->report ?? 0)) {
-                // Check maybe the old report was converted already.
-                $reportid = get_config('tool_reportbuilder', 'converted-'.$oldreportid);
-            }
+            $reportid = $this->config->corereport ??
+                component_class_callback(\tool_tenant\local\block_rbreport::class,
+                    'get_converted_report_id', [$this->config], 0);
             if ($reportid) {
                 try {
                     $report = \core_reportbuilder\manager::get_report_from_id($reportid);
@@ -185,22 +186,16 @@ class block_rbreport extends block_base {
     /**
      * Get current report (tool_reportbuilder)
      *
+     * @uses \tool_tenant\local\block_rbreport::fetch_report()
+     *
      * @return tool_reportbuilder\report_base|null
      */
-    protected function get_tool_report(): ?\tool_reportbuilder\report_base {
+    protected function get_tool_report() {
         if ($this->toolreport === false) {
-            $this->toolreport = null;
-            if ($reportid = $this->config->report ?? 0) {
-                $parameters = isset($this->config->pagesize) ? ['defaultpagesize' => (int)$this->config->pagesize] : [];
-                try {
-                    $report = tool_reportbuilder\manager::get_report($reportid, $parameters);
-                    if (tool_reportbuilder\permission::can_view($report)) {
-                        $this->toolreport = $report;
-                    }
-                } catch (moodle_exception $e) {
-                    return null;
-                }
-            }
+            $this->toolreport = component_class_callback(\tool_tenant\local\block_rbreport::class,
+                'fetch_report',
+                [$this->config],
+                null);
         }
         return $this->toolreport;
     }

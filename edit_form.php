@@ -38,9 +38,6 @@ class block_rbreport_edit_form extends block_edit_form {
     /** @var int */
     const REPORTTYPE_TOOL = 0;
 
-    /** @var block_rbreport */
-    public $block;
-
     /**
      * Block settings definitions
      *

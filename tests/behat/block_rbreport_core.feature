@@ -43,7 +43,7 @@ Feature: The Report block allows users to view custom reports from core reportbu
     And I configure the "Report" block
     And I open the autocomplete suggestions list
     And "Report1" "autocomplete_suggestions" should not exist
-    And I press "Cancel"
+    And I click on "Cancel" "button" in the "Configure Report block" "dialogue"
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"

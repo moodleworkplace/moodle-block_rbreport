@@ -46,7 +46,7 @@ Feature: The Report block allows users to view custom reports from tool_reportbu
     And I should see "Error occurred while retrieving the report" in the "Report" "block"
     And I configure the "Report" block
     And I should not see "Custom report from outdated Report builder"
-    And I press "Cancel"
+    And I click on "Cancel" "button" in the "Configure Report block" "dialogue"
     And I log out
     # Now add user11 in Report1 audiences.
     And I log in as "tenantadmin1"

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use block_rbreport\constants;
+
 /**
  * Custom report block.
  *
@@ -61,24 +63,32 @@ class block_rbreport extends block_base {
         }
 
         $this->content = new stdClass();
-        $layoutclass = !empty($this->config->layout) ? 'rblayout-' . $this->config->layout : '';
 
         if ($report = $this->get_core_report()) {
-            if (method_exists($report, 'set_default_per_page')) {
-                // Method was added in Moodle LMS 4.1 in MDL-73184, it is present in Workplace 4.0 but not LMS 4.0.
-                $report->set_default_per_page(((int)$this->config->pagesize) ?: $report->get_default_per_page());
+            $report->set_default_per_page(((int)$this->config->pagesize) ?: $report->get_default_per_page());
+
+            // Add custom attributes to force cards/table view depending on settings.
+            $configlayout = $this->config->layout ?? '';
+            if ($configlayout === constants::LAYOUT_CARDS) {
+                $report->add_attributes(['data-force-card' => '']);
             }
+            if ($configlayout === constants::LAYOUT_TABLE) {
+                $report->add_attributes(['data-force-table' => '']);
+            }
+
             $outputpage = new \core_reportbuilder\output\custom_report($report->get_report_persistent(), false);
             $output = $this->page->get_renderer('core_reportbuilder');
             $export = $outputpage->export_for_template($output);
             $outputhtml = $output->render_from_template('core_reportbuilder/report', $export);
-            $this->content->text = html_writer::div($outputhtml, 'rblayout ' . $layoutclass);
+            $this->content->text = html_writer::div($outputhtml);
             $fullreporturl = new moodle_url('/reportbuilder/view.php', ['id' => $report->get_report_persistent()->get('id')]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else if ($report = $this->get_tool_report()) {
             $outputpage = new tool_reportbuilder\output\report_view($report, false);
             $output = $this->page->get_renderer('tool_reportbuilder');
-            $this->content->text = html_writer::div($output->render($outputpage), 'rblayout ' . $layoutclass);
+            $configlayout = $this->config->layout ?? '';
+            $layoutclass = !empty($configlayout) ? 'rblayout rblayout-' . $this->config->layout : '';
+            $this->content->text = html_writer::div($output->render($outputpage), $layoutclass);
             $fullreporturl = new moodle_url('/admin/tool/reportbuilder/view.php', ['id' => $report->get_id()]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
         } else {

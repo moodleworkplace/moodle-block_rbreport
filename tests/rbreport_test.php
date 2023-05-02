@@ -17,7 +17,6 @@
 namespace block_rbreport;
 
 use advanced_testcase;
-use block_rbreport_edit_form;
 use core_user\reportbuilder\datasource\users;
 use tool_tenant\tenancy;
 
@@ -58,9 +57,9 @@ class rbreport_test extends advanced_testcase {
             'component' => 'tool_tenant', 'itemid' => $defaulttenantid, 'name' => 'R1']);
         $data = (object)[
             'title' => 'Block title',
-            'reporttype' => block_rbreport_edit_form::REPORTTYPE_CORE,
+            'reporttype' => constants::REPORTTYPE_CORE,
             'corereport' => $report->get('id'),
-            'layout' => block_rbreport_edit_form::LAYOUT_CARDS,
+            'layout' => constants::LAYOUT_CARDS,
             'pagesize' => 10,
         ];
         $block->instance_config_save($data);

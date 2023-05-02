@@ -1,0 +1,100 @@
+/* stylelint-disable */
+/*
+  Do not edit!
+
+  To generate the file make modifications in blocks/rbreport/scss/styles.scss and execute
+
+  /path/to/php blocks/rbreport/cli/compilescss.php
+*/
+/*
+ Reports from core reportbuilder displayed in a block
+ */
+.block-region .block_rbreport [data-action="showcount"][data-target-page-size] {
+  display: none;
+}
+.block-region .block_rbreport [data-region="core_reportbuilder/report"] .dataformatselector {
+  display: none !important;
+}
+.block-region .block_rbreport .table-dynamic > div {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #6c757d #f8f9fa;
+}
+.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar {
+  width: 12px;
+}
+.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-thumb {
+  background-color: #6c757d;
+  border-radius: 20px;
+  border: 3px solid #f8f9fa;
+}
+.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-thumb:hover {
+  background-color: #495057;
+}
+.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar {
+  height: 12px;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table thead, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table thead {
+  display: none;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr {
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.5rem 0 0.5rem;
+  background-color: white !important;
+  word-wrap: break-word;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.5rem;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr:hover, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr:hover {
+  background-color: white !important;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr.emptyrow, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr.emptyrow {
+  display: none;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr:not(.show) td[data-cardviewhidden], .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr:not(.show) td[data-cardviewhidden] {
+  display: none;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td {
+  display: block;
+  min-height: 3.6rem;
+  padding: 0.5rem 0.25rem;
+  border: none;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td::before, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td::before {
+  content: attr(data-cardtitle);
+  display: block;
+  text-transform: uppercase;
+  font-size: 70%;
+  color: #343a40;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td:not([data-cardtitle]), .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td:not([data-cardtitle]) {
+  min-height: 3rem;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td:not(:first-child):not(.card-toggle), .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td:not(:first-child):not(.card-toggle) {
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td:first-child, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td:first-child {
+  padding-right: 2rem;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td.card-toggle, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td.card-toggle {
+  display: block !important;
+  position: absolute;
+  right: 10px;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td.card-toggle button, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td.card-toggle button {
+  padding: 0 0.5rem;
+  color: #6c757d;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]) table.reportbuilder-table tr td.card-toggle button i, .block-region:not(#block-region-content) .block_rbreport .rblayout:not(.rblayout-table) table.reportbuilder-table tr td.card-toggle button i {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.block-region:not(#block-region-content) .block_rbreport .reportbuilder-wrapper .filters-dropdown {
+  width: 100%;
+}

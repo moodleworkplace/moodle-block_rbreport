@@ -18,7 +18,6 @@ namespace block_rbreport;
 
 use advanced_testcase;
 use core_user\reportbuilder\datasource\users;
-use tool_tenant\tenancy;
 
 /**
  * Unit tests for block_rbreport class.
@@ -52,9 +51,13 @@ class rbreport_test extends advanced_testcase {
         $block = $this->create_block($course);
 
         // Change block instance settings and save.
-        $defaulttenantid = tenancy::get_default_tenant_id();
-        $report = $rbgenerator->create_report(['source' => users::class,
-            'component' => 'tool_tenant', 'itemid' => $defaulttenantid, 'name' => 'R1']);
+        if (\core_component::get_component_directory('tool_tenant')) {
+            $defaulttenantid = \tool_tenant\tenancy::get_default_tenant_id();
+            $report = $rbgenerator->create_report(['source' => users::class,
+                'component' => 'tool_tenant', 'itemid' => $defaulttenantid, 'name' => 'R1']);
+        } else {
+            $report = $rbgenerator->create_report(['source' => users::class, 'name' => 'R1']);
+        }
         $data = (object)[
             'title' => 'Block title',
             'reporttype' => constants::REPORTTYPE_CORE,

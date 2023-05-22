@@ -36,6 +36,7 @@ jobtest:
   - php admin/tool/phpunit/cli/util.php --install
   - php admin/tool/phpunit/cli/util.php --buildconfig
   - php admin/tool/phpunit/cli/util.php --buildcomponentconfigs
+  - php admin/tool/behat/cli/init.php --add-core-features-to-theme
   - . check-start
   - . check no_workplace_licenses
   - . check this_plugin_is_part_of "the block_rbreport plugin for Moodle - http://moodle.org/" --nowplicensecomment
@@ -56,7 +57,6 @@ jobtest:
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite core_privacy_testsuite --filter provider_test
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite tool_tenant_testsuite --filter block_rbreport
   - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
-  - php admin/tool/behat/cli/init.php --add-core-features-to-theme
   - . check moodle-plugin-ci behat --suite workplace --profile chrome
   - . check-finish
   except:

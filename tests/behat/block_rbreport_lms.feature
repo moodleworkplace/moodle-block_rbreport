@@ -9,7 +9,7 @@ Feature: The Report block allows users to view custom reports in Moodle LMS
       | username | firstname | lastname | email               |
       | manager  | Max       | Manager  | manager@example.com |
       | user01   | User01    | User01   | user01@example.com  |
-      | user02   | user02    | User02   | user02@example.com  |
+      | user02   | User02    | User02   | user02@example.com  |
       | user03   | User03    | User03   | user03@example.com  |
       | user04   | User04    | User04   | user04@example.com  |
       | user05   | User05    | User05   | user05@example.com  |

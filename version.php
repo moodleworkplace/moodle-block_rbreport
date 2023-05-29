@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_rbreport';
-$plugin->release = '4.2dev';
-$plugin->version = 2023042900;
+$plugin->release = '4.2';
+$plugin->version = 2023053000;
 $plugin->requires = 2023042400.00;
 $plugin->maturity = MATURITY_STABLE;

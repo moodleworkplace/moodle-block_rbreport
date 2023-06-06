@@ -7,8 +7,9 @@ services:
   alias: selenium-standalone-chrome
 
 variables:
-  MOODLE_REPO: git@git.in.moodle.com:workplace/workplacedev.git
-  MOODLE_BRANCH: master
+  MOODLE_REPO_WORKPLACE: git@git.in.moodle.com:workplace/workplacedev.git
+  MOODLE_BRANCH_WORKPLACE402R: WORKPLACE_ROLLING_402
+  MOODLE_BRANCH_WORKPLACE402S: WORKPLACE_402
   MOODLE_REPO_LMS: git@git.in.moodle.com:moodle/moodle.git
   MOODLE_BRANCH_LMS402: MOODLE_402_STABLE
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
@@ -20,6 +21,8 @@ variables:
 #  DB: "mysqli"
 
 before_script:
+- export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
+- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402R
 - . prepare-workplace $cibot_sshkey
 - cd $CI_PROJECT_DIR/..
 - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
@@ -62,7 +65,6 @@ jobtest:
   except:
   - tags
 
-
 .scriptshorttest: &scriptshorttest
   script:
     - . prepare-workplace $cibot_sshkey
@@ -77,6 +79,16 @@ jobtest:
     - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
     - . check moodle-plugin-ci behat --suite default --profile chrome
     - . check-finish
+
+wp402s:
+  before_script:
+    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402S
+  <<: *scriptshorttest
+  except:
+    - master
+    - tags
+    - /^WORKPLACE_\d+$/
 
 lms402:
   before_script:

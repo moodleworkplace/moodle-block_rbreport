@@ -36,12 +36,25 @@ class mobile {
         require_once($CFG->libdir . '/blocklib.php');
 
         $blockinstance = block_instance_by_id($args['blockid']);
-        $url = new \moodle_url('/reportbuilder/view.php', ['id' => $blockinstance->config->corereport]);
 
         $data = [
-            'url' => $url->out(false),
-            'title' => $blockinstance->title,
+            'url' => '',
+            'title' => '',
         ];
+
+        $reportid = $blockinstance->config->corereport;
+        try {
+            $report = \core_reportbuilder\manager::get_report_from_id($reportid);
+            if (\core_reportbuilder\permission::can_view_report($report->get_report_persistent())) {
+
+                $url = new \moodle_url('/reportbuilder/view.php', ['id' => $reportid]);
+                $data['url'] = $url->out(false);
+                $data['title'] = $blockinstance->title;
+
+            }
+        } catch (moodle_exception $e) {
+            // Do nothing.
+        }
 
         return array(
             'templates' => [

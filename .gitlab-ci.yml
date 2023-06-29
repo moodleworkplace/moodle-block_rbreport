@@ -19,6 +19,7 @@ variables:
   MYSQL_ALLOW_EMPTY_PASSWORD: "true"
   DB: "pgsql"
 #  DB: "mysqli"
+  MUSTACHE_IGNORE_NAMES: 'mobile*.mustache'
 
 before_script:
 - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE

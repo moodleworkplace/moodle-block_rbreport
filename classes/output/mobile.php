@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the block_rbreport plugin for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,11 +16,12 @@
 
 namespace block_rbreport\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Mobile output class.
  *
+ * @package    block_rbreport
+ * @author     Juan Leyva
+ * @copyright  2023 Moodle Pty Ltd <support@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
@@ -52,11 +53,12 @@ class mobile {
                 $data['title'] = $blockinstance->title;
 
             }
-        } catch (moodle_exception $e) {
+        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+        } catch (\moodle_exception $e) {
             // Do nothing.
         }
 
-        return array(
+        return [
             'templates' => [
                 [
                     'id' => 'main',
@@ -64,6 +66,6 @@ class mobile {
                 ],
             ],
             'javascript' => ''
-        );
+        ];
     }
 }

@@ -37,7 +37,7 @@ class behat_block_rbreport_generator extends behat_generator_base {
                 'datagenerator' => 'report',
                 'required' => ['name', 'source'],
                 'switchids' => ['tenant' => 'itemid'],
-            ]
+            ],
         ];
     }
 
@@ -50,7 +50,7 @@ class behat_block_rbreport_generator extends behat_generator_base {
     protected function get_tenant_id(string $tenantname): int {
         global $DB;
         if (\core_component::get_component_directory('tool_tenant')) {
-            if (!$id = $DB->get_field('tool_tenant', 'id', array('name' => $tenantname))) {
+            if (!$id = $DB->get_field('tool_tenant', 'id', ['name' => $tenantname])) {
                 throw new Exception('The specified tenant with name "' . $tenantname . '" does not exist');
             }
             return $id;

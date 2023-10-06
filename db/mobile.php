@@ -25,13 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$addons = array(
-    "block_rbreport" => array(
-        "handlers" => array( // Different places where the add-on will display content.
-            'rbreport' => array( // Handler unique name (can be anything).
+$addons = [
+    "block_rbreport" => [
+        "handlers" => [ // Different places where the add-on will display content.
+            'rbreport' => [ // Handler unique name (can be anything).
                 'delegate' => 'CoreBlockDelegate',
-                'method' => 'mobile_course_view'
-            )
-        )
-    )
-);
+                'method' => 'mobile_course_view',
+            ],
+        ],
+    ],
+];

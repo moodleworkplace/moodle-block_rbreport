@@ -65,7 +65,7 @@ class mobile {
                     'html' => $OUTPUT->render_from_template('block_rbreport/mobile_view_page', $data),
                 ],
             ],
-            'javascript' => ''
+            'javascript' => '',
         ];
     }
 }

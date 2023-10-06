@@ -54,7 +54,7 @@ class rbreport_test extends advanced_testcase {
         if (\core_component::get_component_directory('tool_tenant')) {
             $defaulttenantid = \tool_tenant\tenancy::get_default_tenant_id();
             $report = $rbgenerator->create_report(['source' => users::class,
-                'component' => 'tool_tenant', 'itemid' => $defaulttenantid, 'name' => 'R1']);
+                'component' => 'tool_tenant', 'itemid' => $defaulttenantid, 'name' => 'R1', ]);
         } else {
             $report = $rbgenerator->create_report(['source' => users::class, 'name' => 'R1']);
         }

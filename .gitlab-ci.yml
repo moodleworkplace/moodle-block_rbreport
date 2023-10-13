@@ -8,6 +8,7 @@ services:
 
 variables:
   MOODLE_REPO_WORKPLACE: git@git.in.moodle.com:workplace/workplacedev.git
+  MOODLE_BRANCH_WORKPLACE403R: WORKPLACE_ROLLING_403
   MOODLE_BRANCH_WORKPLACE402R: WORKPLACE_ROLLING_402
   MOODLE_BRANCH_WORKPLACE402S: WORKPLACE_402
   MOODLE_REPO_LMS: git@git.in.moodle.com:moodle/moodle.git
@@ -24,7 +25,7 @@ variables:
 
 before_script:
 - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402R
+- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403R
 - . prepare-workplace $cibot_sshkey
 - cd $CI_PROJECT_DIR/..
 - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
@@ -81,6 +82,16 @@ jobtest:
     - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
     - . check moodle-plugin-ci behat --suite default --profile chrome
     - . check-finish
+
+wp402r:
+  before_script:
+    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402R
+  <<: *scriptshorttest
+  except:
+    - master
+    - tags
+    - /^WORKPLACE_\d+$/
 
 wp402s:
   before_script:

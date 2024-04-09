@@ -42,6 +42,9 @@ jobs:
           - php: '8.2'
             moodle-branch: 'MOODLE_403_STABLE'
             database: mariadb
+          - php: '8.3'
+            moodle-branch: 'main' # TODO WPOS-92 replace with MOODLE_404_STABLE when it is created
+            database: pgsql
 
     steps:
       - name: Check out repository code

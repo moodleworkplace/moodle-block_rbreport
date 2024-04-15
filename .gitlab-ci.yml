@@ -8,13 +8,14 @@ services:
 
 variables:
   MOODLE_REPO_WORKPLACE: git@git.in.moodle.com:workplace/workplacedev.git
+  MOODLE_BRANCH_WORKPLACE404R: WORKPLACE_ROLLING_404
   MOODLE_BRANCH_WORKPLACE403R: WORKPLACE_ROLLING_403
   MOODLE_BRANCH_WORKPLACE403S: WORKPLACE_403
-  MOODLE_BRANCH_WORKPLACE402R: WORKPLACE_ROLLING_402
   MOODLE_BRANCH_WORKPLACE402S: WORKPLACE_402
   MOODLE_REPO_LMS: git@git.in.moodle.com:moodle/moodle.git
   MOODLE_BRANCH_LMS402: MOODLE_402_STABLE
   MOODLE_BRANCH_LMS403: MOODLE_403_STABLE
+  MOODLE_BRANCH_LMS404: main # TODO WPOS-92 replace with MOODLE_404_STABLE when it is created
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: ""
@@ -26,15 +27,15 @@ variables:
 
 before_script:
 - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403R
+- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE404R
 - . prepare-workplace $cibot_sshkey
 - export PLUGINNAME=$(grep 'plugin->component' $CI_PROJECT_DIR/version.php | awk -F\' '{ print $2; }')
 - cd $CI_PROJECT_DIR/..
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_reportbuilder.git
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git --branch WORKPLACE_ROLLING_404
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git --branch WORKPLACE_ROLLING_404
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git --branch WORKPLACE_ROLLING_404
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git --branch WORKPLACE_ROLLING_404
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_reportbuilder.git --branch WORKPLACE_ROLLING_404
 - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
 - php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
 - cd moodle
@@ -99,20 +100,20 @@ jobtest:
     - . check-finish
   artifacts: *artifacts
 
-wp403s:
+wp403r:
   before_script:
     - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403S
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403R
   <<: *scriptshorttest
   except:
     - master
     - tags
     - /^WORKPLACE_\d+$/
 
-wp402r:
+wp403s:
   before_script:
     - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402R
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403S
   <<: *scriptshorttest
   except:
     - master
@@ -142,6 +143,15 @@ lms403:
   before_script:
     - export MOODLE_REPO=$MOODLE_REPO_LMS
     - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS403
+  <<: *scriptshorttest
+  except:
+    - master
+    - tags
+
+lms404:
+  before_script:
+    - export MOODLE_REPO=$MOODLE_REPO_LMS
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS404
   <<: *scriptshorttest
   except:
     - master

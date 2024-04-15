@@ -28,7 +28,7 @@ use core_user\reportbuilder\datasource\users;
  * @copyright   2023 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class rbreport_test extends advanced_testcase {
+final class rbreport_test extends advanced_testcase {
     public static function setUpBeforeClass(): void {
         global $CFG; // Required for CFG availability in require files.
         require_once(__DIR__ . '/../../moodleblock.class.php');

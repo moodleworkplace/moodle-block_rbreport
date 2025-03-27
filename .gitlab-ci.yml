@@ -45,7 +45,7 @@ jobtest:
   - php admin/tool/phpunit/cli/util.php --install
   - php admin/tool/phpunit/cli/util.php --buildconfig
   - php admin/tool/phpunit/cli/util.php --buildcomponentconfigs
-  - php admin/tool/behat/cli/init.php --add-core-features-to-theme
+  - php admin/tool/behat/cli/init.php --add-core-features-to-theme --scss-deprecations
   - . check-start
   - . check no_workplace_licenses
   - . check this_plugin_is_part_of "the block_rbreport plugin for Moodle - http://moodle.org/" --nowplicensecomment
@@ -88,7 +88,7 @@ jobtest:
     - php admin/tool/phpunit/cli/init.php
     - php admin/tool/phpunit/cli/util.php --buildcomponentconfigs
     - php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
-    - php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=3 --optimize-runs=@$PLUGINNAME
+    - php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=3 --optimize-runs=@$PLUGINNAME --scss-deprecations
     - . check-start
     - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
     - . check moodle-plugin-ci behat --suite default --profile chrome

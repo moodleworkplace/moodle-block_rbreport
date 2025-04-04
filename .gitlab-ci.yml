@@ -1,25 +1,17 @@
-image: moodlehq/moodle-workplace-plugin-ci:8.1
+image: moodlehq/moodle-workplace-plugin-ci:8.2
 
 services:
-- postgres:13
+- postgres:14
 #- mysql:5.7.26
 - name: selenium/standalone-chrome:3
   alias: selenium-standalone-chrome
 
 variables:
   MOODLE_REPO_WORKPLACE: git@git.in.moodle.com:workplace/workplacedev.git
-  MOODLE_BRANCH_WORKPLACE405R: WORKPLACE_ROLLING_405
-  MOODLE_BRANCH_WORKPLACE405S: WORKPLACE_405
-  MOODLE_BRANCH_WORKPLACE404R: WORKPLACE_ROLLING_404
-  MOODLE_BRANCH_WORKPLACE404S: WORKPLACE_404
-  MOODLE_BRANCH_WORKPLACE403R: WORKPLACE_ROLLING_403
-  MOODLE_BRANCH_WORKPLACE403S: WORKPLACE_403
-  MOODLE_BRANCH_WORKPLACE402S: WORKPLACE_402
+  MOODLE_BRANCH_WORKPLACE500R: WORKPLACE_ROLLING_500
+  # MOODLE_BRANCH_WORKPLACE500S: WORKPLACE_500
   MOODLE_REPO_LMS: git@git.in.moodle.com:moodle/moodle.git
-  MOODLE_BRANCH_LMS402: MOODLE_402_STABLE
-  MOODLE_BRANCH_LMS403: MOODLE_403_STABLE
-  MOODLE_BRANCH_LMS404: MOODLE_404_STABLE
-  MOODLE_BRANCH_LMS405: MOODLE_405_STABLE
+  MOODLE_BRANCH_LMS500: main # TODO change to MOODLE_500_STABLE
   MOODLE_BEHAT_WDHOST: "http://selenium-standalone-chrome:4444/wd/hub"
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: ""
@@ -31,15 +23,14 @@ variables:
 
 before_script:
 - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE405R
+- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE500R
 - . prepare-workplace $cibot_sshkey
 - export PLUGINNAME=$(grep 'plugin->component' $CI_PROJECT_DIR/version.php | awk -F\' '{ print $2; }')
 - cd $CI_PROJECT_DIR/..
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_reportbuilder.git
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git --branch WP-5390
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git --branch WP-5390
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git --branch WP-5390
+- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git --branch WP-5390
 - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
 - php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
 - cd moodle
@@ -104,97 +95,20 @@ jobtest:
     - . check-finish
   artifacts: *artifacts
 
-wp405s:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE405S
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
+# wp500s:
+#   before_script:
+#     - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
+#     - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE500S
+#   <<: *scriptshorttest
+#   except:
+#     - master
+#     - tags
+#     - /^WORKPLACE_(ROLLING_)?\d+$/
 
-wp404r:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE404R
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
-
-wp404s:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE404S
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
-
-wp403r:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403R
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
-
-wp403s:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE403S
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
-
-wp402s:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE402S
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-    - /^WORKPLACE_(ROLLING_)?\d+$/
-
-lms402:
+lms500:
   before_script:
     - export MOODLE_REPO=$MOODLE_REPO_LMS
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS402
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-
-lms403:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_LMS
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS403
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-
-lms404:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_LMS
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS404
-  <<: *scriptshorttest
-  except:
-    - master
-    - tags
-
-lms405:
-  before_script:
-    - export MOODLE_REPO=$MOODLE_REPO_LMS
-    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS405
+    - export MOODLE_BRANCH=$MOODLE_BRANCH_LMS500
   <<: *scriptshorttest
   except:
     - master

@@ -184,9 +184,6 @@ $min: breakpoint-min($name, $breakpoints);
     // Show as cards in side regions except with table layout setting.
     &:not(#block-region-content) .block_rbreport {
         .reportbuilder-report:not([data-force-table]),
-        .rblayout:not(.rblayout-table) { // For tool_reportbuilder reports.
-            @include table-cards;
-        }
         .reportbuilder-wrapper .filters-dropdown {
             width: 100%;
         }

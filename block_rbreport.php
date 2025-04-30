@@ -32,9 +32,6 @@ class block_rbreport extends block_base {
     /** @var \core_reportbuilder\local\report\base */
     protected $corereport = false;
 
-    /** @var tool_reportbuilder\report_base */
-    protected $toolreport = false;
-
     /** @var string */
     protected $statusmessage = '';
 
@@ -85,13 +82,6 @@ class block_rbreport extends block_base {
             $this->content->text = html_writer::div($outputhtml);
             $fullreporturl = new moodle_url('/reportbuilder/view.php', ['id' => $report->get_report_persistent()->get('id')]);
             $this->content->footer = html_writer::link($fullreporturl, get_string('gotofullreport', 'block_rbreport'));
-        } else if ($report = $this->get_tool_report()) {
-            [$text, $footer] = component_class_callback(\tool_tenant\local\block_rbreport::class,
-                'display_report', [$report, $this->page], ['', '']);
-            $configlayout = $this->config->layout ?? '';
-            $layoutclass = !empty($configlayout) ? 'rblayout rblayout-' . $this->config->layout : '';
-            $this->content->text = html_writer::div($text, $layoutclass);
-            $this->content->footer = $footer;
         } else {
             $this->content->text = $this->user_can_edit() && $this->page->user_is_editing() ? $this->statusmessage : '';
         }
@@ -111,14 +101,11 @@ class block_rbreport extends block_base {
             $this->title = $this->config->title;
         } else if ($report = $this->get_core_report()) {
             $this->title = $report->get_report_persistent()->get_formatted_name();
-        } else if ($report = $this->get_tool_report()) {
-            $this->title = format_string($report->get_reportname());
         } else {
             $this->title = get_string('pluginname', 'block_rbreport');
         }
 
-        if ((!empty($this->config->corereport) && !$this->get_core_report()) ||
-                (!empty($this->config->report) && !$this->get_tool_report())) {
+        if (!empty($this->config->corereport) && !$this->get_core_report()) {
             $this->statusmessage = html_writer::div(get_string('errormessage', 'block_rbreport'), 'alert alert-danger');
         } else {
             $this->statusmessage = html_writer::div(get_string('reportnotsetmessage', 'block_rbreport'));
@@ -181,22 +168,5 @@ class block_rbreport extends block_base {
             }
         }
         return $this->corereport;
-    }
-
-    /**
-     * Get current report (tool_reportbuilder)
-     *
-     * @uses \tool_tenant\local\block_rbreport::fetch_report()
-     *
-     * @return tool_reportbuilder\report_base|null
-     */
-    protected function get_tool_report() {
-        if ($this->toolreport === false) {
-            $this->toolreport = component_class_callback(\tool_tenant\local\block_rbreport::class,
-                'fetch_report',
-                [$this->config],
-                null);
-        }
-        return $this->toolreport;
     }
 }

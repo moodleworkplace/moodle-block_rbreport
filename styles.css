@@ -1,42 +1,11 @@
-/* stylelint-disable */
-/*
-  Do not edit!
-
-  To generate the file make modifications in blocks/rbreport/scss/styles.scss and execute
-
-  /path/to/php blocks/rbreport/cli/compilescss.php
-*/
-/*
- Reports from core reportbuilder displayed in a block
- */
+/* Remove 'Show all X' link in Custom report blocks. */
 .block-region .block_rbreport [data-action="showcount"][data-target-page-size] {
-  display: none;
+    display: none;
 }
+/* Hide export form. */
 .block-region .block_rbreport [data-region="core_reportbuilder/report"] .dataformatselector {
-  display: none !important;
+    display: none;
 }
 .block-region .block_rbreport .table-dynamic > div {
-  overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #6c757d #f8f9fa;
-}
-.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar {
-  width: 12px;
-}
-.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-track {
-  background: #f8f9fa;
-}
-.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-thumb {
-  background-color: #6c757d;
-  border-radius: 20px;
-  border: 3px solid #f8f9fa;
-}
-.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar-thumb:hover {
-  background-color: #495057;
-}
-.block-region .block_rbreport .table-dynamic > div::-webkit-scrollbar {
-  height: 12px;
-}
-.block-region:not(#block-region-content) .block_rbreport .reportbuilder-report:not([data-force-table]), .block-region:not(#block-region-content) .block_rbreport .reportbuilder-wrapper .filters-dropdown {
-  width: 100%;
+    scrollbar-width: thin;
 }

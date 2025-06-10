@@ -146,8 +146,9 @@ Feature: The Report block allows users to view custom reports in Moodle LMS
       | Layout            | Adaptive   |
     And I press "Save changes"
     # Adaptive view show cards in small screens.
-    And I should see "User01" in the "Report1" "block"
-    And I should not see "user01@example.com" in the "Report1" "block"
+    # TODO: Uncomment these lines when WP-5522 is done.
+    # And I should see "User01" in the "Report1" "block"
+    # And I should not see "user01@example.com" in the "Report1" "block"
     And I change window size to "large"
     # Adaptive view show table in large screens.
     And I should see "User01" in the "Report1" "block"

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Fixed compatibility with upstream report table adaptive layout
+
+## 5.0.1 - 2025-06-10
+### Changed
+- Updated testing matrix for 5.0
+- Removed support for old Workplace report builder tool
+
 ## 5.0 - 2025-04-14
 ### Added
 - Added support for Moodle 5.0

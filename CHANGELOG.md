@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.2 - 2025-08-12
 ### Fixed
 - Fixed compatibility with upstream report table adaptive layout
 

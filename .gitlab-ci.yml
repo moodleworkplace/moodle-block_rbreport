@@ -21,40 +21,38 @@ variables:
 #  DB: "mysqli"
   MUSTACHE_IGNORE_NAMES: 'mobile*.mustache'
 
-before_script:
-- export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
-- export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE500R
-- . prepare-workplace $cibot_sshkey
-- export PLUGINNAME=$(grep 'plugin->component' $CI_PROJECT_DIR/version.php | awk -F\' '{ print $2; }')
-- cd $CI_PROJECT_DIR/..
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git
-- moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git
-- moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
-- php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
-- cd moodle
+.setupworkplace: &setupworkplace
+  before_script:
+  - export MOODLE_REPO=$MOODLE_REPO_WORKPLACE
+  - export MOODLE_BRANCH=$MOODLE_BRANCH_WORKPLACE500R
+  - . prepare-workplace $cibot_sshkey
+  - export PLUGINNAME=$(grep 'plugin->component' $CI_PROJECT_DIR/version.php | awk -F\' '{ print $2; }')
+  - cd $CI_PROJECT_DIR/..
+  - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git
+  - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_tenant.git
+  - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git
+  - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_organisation.git
+  - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
+  - cd moodle
 
 .setupfaildumps: &setupfaildumps
   - mkdir ${CI_PROJECT_DIR}/faildumps
   - moodle-plugin-ci add-config "\$CFG->behat_faildump_path = '${CI_PROJECT_DIR}/faildumps';"
 
-jobtest:
+codecheck:
+  <<: *setupworkplace
   script:
-  - *setupfaildumps
-  - php admin/tool/phpunit/cli/util.php --install
-  - php admin/tool/phpunit/cli/util.php --buildconfig
+  - php admin/tool/phpunit/cli/init.php
   - php admin/tool/phpunit/cli/util.php --buildcomponentconfigs
-  - php admin/tool/behat/cli/init.php --add-core-features-to-theme --scss-deprecations
   - . check-start
+  - . check version_number
   - . check no_workplace_licenses
   - . check this_plugin_is_part_of "the block_rbreport plugin for Moodle - http://moodle.org/" --nowplicensecomment
-  - . check version_number
   - . check language_file_sorting
   - . check behat_workplace_tag
   - . check moodle-plugin-ci phplint
-  #- . check moodle-plugin-ci phpcpd
-  #- . check moodle-plugin-ci phpmd
+#  - . check moodle-plugin-ci phpcpd TODO WP-5622
+  - . check moodle-plugin-ci phpmd
   - . check moodle-plugin-ci codechecker --max-warnings 0
   - . check moodle-plugin-ci phpdoc
   - . check moodle-plugin-ci validate
@@ -66,6 +64,17 @@ jobtest:
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite core_privacy_testsuite --filter provider_test
   - . check vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite tool_tenant_testsuite --filter block_rbreport
   - . check moodle-plugin-ci phpunit --coverage-text --fail-on-warning
+  - . check-finish
+  except:
+  - tags
+
+behat:
+  <<: *setupworkplace
+  script:
+  - *setupfaildumps
+  - php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
+  - php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=3 --optimize-runs=@$PLUGINNAME --scss-deprecations
+  - . check-start
   - . check moodle-plugin-ci behat --suite workplace --profile chrome
   - . check-finish
   artifacts: &artifacts
@@ -76,6 +85,7 @@ jobtest:
       - ${CI_PROJECT_DIR}/faildumps/
   except:
   - tags
+  - /^MOODLE_\d+_STABLE$/
 
 .scriptshorttest: &scriptshorttest
   script:
@@ -84,9 +94,9 @@ jobtest:
     - cd $CI_PROJECT_DIR/..
     - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
     - cd moodle
-    - *setupfaildumps
     - php admin/tool/phpunit/cli/init.php
     - php admin/tool/phpunit/cli/util.php --buildcomponentconfigs
+    - *setupfaildumps
     - php -S ${IPADDRESS}:8000 -t $CI_PROJECT_DIR/../moodle > /dev/null 2>&1 &
     - php admin/tool/behat/cli/init.php --add-core-features-to-theme --parallel=3 --optimize-runs=@$PLUGINNAME --scss-deprecations
     - . check-start

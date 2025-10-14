@@ -1,0 +1,2 @@
+reporttypecore,block_rbreport
+reporttypetool,block_rbreport

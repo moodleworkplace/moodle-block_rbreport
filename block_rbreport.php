@@ -46,8 +46,6 @@ class block_rbreport extends block_base {
     /**
      * Returns the block contents.
      *
-     * @uses \tool_tenant\local\block_rbreport::display_report()
-     *
      * @return stdClass The block contents.
      */
     public function get_content() {
@@ -146,16 +144,12 @@ class block_rbreport extends block_base {
     /**
      * Get current report
      *
-     * @uses \tool_tenant\local\block_rbreport::get_converted_report_id()
-     *
      * @return \core_reportbuilder\local\report\base|null
      */
     protected function get_core_report(): ?\core_reportbuilder\local\report\base {
         if ($this->corereport === false) {
             $this->corereport = null;
-            $reportid = $this->config->corereport ??
-                component_class_callback(\tool_tenant\local\block_rbreport::class,
-                    'get_converted_report_id', [$this->config], 0);
+            $reportid = $this->config?->corereport;
             if ($reportid) {
                 try {
                     $report = \core_reportbuilder\manager::get_report_from_id($reportid);

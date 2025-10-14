@@ -31,9 +31,4 @@ class constants {
     const LAYOUT_CARDS = 'cards';
     /** Always display as table. */
     const LAYOUT_TABLE = 'table';
-
-    /** @var int */
-    const REPORTTYPE_CORE = 1;
-    /** @var int */
-    const REPORTTYPE_TOOL = 0;
 }

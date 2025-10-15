@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class manager.
- *
- * @package     block_rbreport
- * @author      Mikel Martín <mikel@moodle.com>
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace block_rbreport;
 
 use core_reportbuilder\local\helpers\audience;
@@ -41,9 +33,7 @@ class manager {
     /**
      * List of available reports
      *
-     * {@see \core_reportbuilder\local\systemreports\reports_list::filter_by_allowed_reports_sql()}
-     * {@see \tool_tenant\reportbuilder\local\callbacks::get_reports_list_tenant_fields() }
-     * {@see \tool_tenant\reportbuilder\local\callbacks::get_reports_list_tenant_clause() }
+     * @uses \tool_tenant\local\block_rbreport::get_extra_sql_for_core_reports
      *
      * @param string $pagetype
      * @param string|null $subpage
@@ -54,10 +44,12 @@ class manager {
         global $DB;
         $sql = 'type=:type';
         $params = ['type' => \core_reportbuilder\local\report\base::TYPE_CUSTOM_REPORT];
+
         [$tsql, $tparams] = component_class_callback(\tool_tenant\local\block_rbreport::class,
             'get_extra_sql_for_core_reports',
             [$pagetype, $subpage, $pageurl],
-            ['1=1', []]);
+            ['1=1', []],
+        );
         [$asql, $aparams] = $this->get_audience_sql('r');
 
         $records = $DB->get_records_sql(

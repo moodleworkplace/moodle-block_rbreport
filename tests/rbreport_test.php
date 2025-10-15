@@ -61,7 +61,6 @@ final class rbreport_test extends advanced_testcase {
         }
         $data = (object)[
             'title' => 'Block title',
-            'reporttype' => constants::REPORTTYPE_CORE,
             'corereport' => $report->get('id'),
             'layout' => constants::LAYOUT_CARDS,
             'pagesize' => 10,
@@ -77,7 +76,6 @@ final class rbreport_test extends advanced_testcase {
         // Test values.
         $config = $block->get_config_for_external();
         $this->assertEquals($data->title, $config->instance->title);
-        $this->assertEquals($data->reporttype, $config->instance->reporttype);
         $this->assertEquals($data->corereport, $config->instance->corereport);
         $this->assertEquals($data->layout, $config->instance->layout);
         $this->assertEquals($data->pagesize, $config->instance->pagesize);

@@ -17,7 +17,6 @@
 namespace block_rbreport;
 
 use core_reportbuilder\local\helpers\audience;
-use core_reportbuilder\local\helpers\database;
 use moodle_url;
 
 /**
@@ -50,7 +49,8 @@ class manager {
             [$pagetype, $subpage, $pageurl],
             ['1=1', []],
         );
-        [$asql, $aparams] = $this->get_audience_sql('r');
+
+        [$asql, $aparams] = audience::user_reports_list_access_sql('r');
 
         $records = $DB->get_records_sql(
             'SELECT * FROM {reportbuilder_report} r
@@ -63,26 +63,5 @@ class manager {
             $res[$record->id] = $persistent->get_formatted_name();
         };
         return $res;
-    }
-
-    /**
-     * SQL to filter reports based on the audience
-     *
-     * @param string $reporttablealias
-     * @return array
-     */
-    protected function get_audience_sql(string $reporttablealias): array {
-        global $USER;
-        if (has_capability('moodle/reportbuilder:editall', \context_system::instance())) {
-            return ['1=1', []];
-        }
-        [$asql, $aparams] = audience::user_reports_list_sql($reporttablealias);
-        if (has_capability('moodle/reportbuilder:edit', \context_system::instance())) {
-            // User can always see own reports and also those reports user is in audience of.
-            $paramuserid = database::generate_param_name();
-            $aparams += [$paramuserid => $USER->id];
-            $asql = "({$reporttablealias}.usercreated = :{$paramuserid} OR ($asql))";
-        }
-        return [$asql, $aparams];
     }
 }

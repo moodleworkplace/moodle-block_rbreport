@@ -26,7 +26,6 @@ use block_rbreport\manager;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_rbreport_edit_form extends block_edit_form {
-
     /**
      * Block settings definitions
      *
@@ -56,8 +55,12 @@ class block_rbreport_edit_form extends block_edit_form {
             constants::LAYOUT_CARDS => get_string('displayascards', 'block_rbreport'),
             constants::LAYOUT_TABLE => get_string('displayastable', 'block_rbreport'),
         ];
-        $mform->addElement('select', 'config_layout', get_string('configlayout', 'block_rbreport'),
-            $options);
+        $mform->addElement(
+            'select',
+            'config_layout',
+            get_string('configlayout', 'block_rbreport'),
+            $options,
+        );
         $mform->addHelpButton('config_layout', 'configlayout', 'block_rbreport');
 
         $cardsarray = [1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 10 => 10, 25 => 25, 50 => 50];

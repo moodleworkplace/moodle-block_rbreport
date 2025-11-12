@@ -24,7 +24,6 @@ use core_reportbuilder\local\models\report;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_rbreport_generator extends component_generator_base {
-
     /**
      * Proxy the core report generator method, autofilling in component/itemid (tenant ID)
      *

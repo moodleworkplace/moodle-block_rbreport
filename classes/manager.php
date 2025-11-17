@@ -28,7 +28,6 @@ use moodle_url;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manager {
-
     /**
      * List of available reports
      *
@@ -44,7 +43,8 @@ class manager {
         $sql = 'type=:type';
         $params = ['type' => \core_reportbuilder\local\report\base::TYPE_CUSTOM_REPORT];
 
-        [$tsql, $tparams] = component_class_callback(\tool_tenant\local\block_rbreport::class,
+        [$tsql, $tparams] = component_class_callback(
+            \tool_tenant\local\block_rbreport::class,
             'get_extra_sql_for_core_reports',
             [$pagetype, $subpage, $pageurl],
             ['1=1', []],
@@ -56,7 +56,8 @@ class manager {
             'SELECT * FROM {reportbuilder_report} r
             WHERE ' . $sql . ' AND ' . $tsql . ' AND ' . $asql . '
             ORDER BY name, id',
-            $params + $aparams + $tparams);
+            $params + $aparams + $tparams,
+        );
         $res = [];
         foreach ($records as $record) {
             $persistent = new \core_reportbuilder\local\models\report(0, $record);

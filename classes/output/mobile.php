@@ -25,7 +25,6 @@ namespace block_rbreport\output;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
-
     /**
      * Returns the view for the mobile app.
      *
@@ -47,11 +46,9 @@ class mobile {
         try {
             $report = \core_reportbuilder\manager::get_report_from_id($reportid);
             if (\core_reportbuilder\permission::can_view_report($report->get_report_persistent())) {
-
                 $url = new \moodle_url('/reportbuilder/view.php', ['id' => $reportid]);
                 $data['url'] = $url->out(false);
                 $data['title'] = $blockinstance->title;
-
             }
         // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
         } catch (\moodle_exception $e) {

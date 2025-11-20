@@ -15,19 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Plugin external service definition
  *
  * @package     block_rbreport
- * @author      Marina Glancy
- * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
+ * @copyright   2025 Moodle Pty Ltd <support@moodle.com>
+ * @author      2025 Aleti Vinod Kumar <vinod.aleti@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-$plugin->component = 'block_rbreport';
-$plugin->release = '5.0.3';
-$plugin->version = 2025112000;
-$plugin->requires = 2025041400.00;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->supported = [500, 501];
+$functions = [
+    'block_rbreport_search_reports' => [
+        'classname'   => block_rbreport\external\search_reports::class,
+        'description' => 'Search Reports',
+        'type'        => 'read',
+        'ajax'        => true,
+    ],
+];

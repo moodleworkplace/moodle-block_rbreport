@@ -43,6 +43,7 @@ $string['privacy:metadata:block'] = 'The Report block stores all of its data wit
 $string['rbreport:addinstance'] = 'Add a new Report block';
 $string['rbreport:myaddinstance'] = 'Add a new Report block to Dashboard';
 $string['reportnotsetmessage'] = 'Please configure this block and select which report it should display.';
+$string['toomanyreportstoshow'] = 'Too many reports ({$a}) to show';
 
 // Deprecated since Moodle 5.0.4.
 $string['reporttypecore'] = 'Custom report';

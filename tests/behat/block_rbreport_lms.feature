@@ -85,7 +85,7 @@ Feature: The Report block allows users to view custom reports in Moodle LMS
     And I should see "Error occurred while retrieving the report" in the "Report" "block"
     And I configure the "Report" block
     And I open the autocomplete suggestions list
-    And "Report1" "autocomplete_selection" should exist
+    And "Report1" "autocomplete_selection" should not exist
     And "Report2" "autocomplete_suggestions" should not exist
     And "Report3" "autocomplete_suggestions" should not exist
 

@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use block_rbreport\constants;
-use block_rbreport\manager;
+use core_reportbuilder\local\models\report;
+use core_reportbuilder\permission;
 
 /**
  * Form for editing Custom report block instances.
@@ -39,14 +40,20 @@ class block_rbreport_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_title', get_string('configtitle', 'block_rbreport'));
         $mform->setType('config_title', PARAM_TEXT);
 
-        $optionscore = (new manager())->get_report_options($this->page->pagetype, $this->page->subpage, $this->page->url);
-
-        // Add empty option on first load to avoid autocomplete selecting the first option automatically.
-        if (!isset($this->block->config->corereport)) {
-            $optionscore = ['' => ''] + $optionscore;
-        }
-
-        $mform->addElement('autocomplete', 'config_corereport', get_string('configreport', 'block_rbreport'), $optionscore);
+        $mform->addElement('autocomplete', 'config_corereport', get_string('configreport', 'block_rbreport'), [], [
+            'ajax' => 'block_rbreport/form_report_selector',
+            'data-contextid' => $this->page->context->id,
+            'data-pagetype' => $this->page->pagetype,
+            'data-subpage' => $this->page->subpage,
+            'data-pageurl' => $this->page->url->out(false),
+            'valuehtmlcallback' => static function(int $reportid): ?string {
+                $persistent = report::get_record(['id' => $reportid]);
+                if ($persistent !== false && permission::can_view_report($persistent)) {
+                    return $persistent->get_formatted_name();
+                }
+                return null;
+            },
+        ]);
         $mform->addHelpButton('config_corereport', 'configreport', 'block_rbreport');
         $mform->addRule('config_corereport', null, 'required', null, 'client');
 

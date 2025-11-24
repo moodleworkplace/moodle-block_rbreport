@@ -31,7 +31,6 @@ use core_external\external_value;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class search_reports extends external_api {
-
     /**
      * External method parameters
      *
@@ -59,7 +58,7 @@ class search_reports extends external_api {
         string $query,
         string $pagetype,
         string $pageurl,
-        ?string $subpage,
+        ?string $subpage = null,
     ): array {
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -68,6 +67,8 @@ class search_reports extends external_api {
             'pageurl' => $pageurl,
             'subpage' => $subpage,
         ]);
+
+        self::validate_context(\context_system::instance());
 
         $url = new \moodle_url($params['pageurl']);
 

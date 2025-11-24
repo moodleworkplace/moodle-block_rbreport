@@ -47,7 +47,7 @@ class manager {
         moodle_url $pageurl,
         ?string $search = null,
         int $limitfrom = 0,
-        int $limitnum = 100
+        int $limitnum = 0,
     ): array {
         global $DB;
         $sql = 'type=:type';
@@ -64,16 +64,18 @@ class manager {
 
         // If searching, add LIKE condition.
         $searchsql = '';
-        if (!empty($search)) {
+        if ((string) $search !== '') {
             $searchsql = ' AND ' . $DB->sql_like('r.name', ':search', false, false);
             $params['search'] = '%' . $DB->sql_like_escape($search) . '%';
         }
+
         $records = $DB->get_records_sql(
             'SELECT * FROM {reportbuilder_report} r
             WHERE ' . $sql . ' AND ' . $tsql . ' AND ' . $asql . $searchsql . '
             ORDER BY name, id',
             $params + $aparams + $tparams,
-            $limitfrom, $limitnum
+            $limitfrom,
+            $limitnum,
         );
         $res = [];
         foreach ($records as $record) {

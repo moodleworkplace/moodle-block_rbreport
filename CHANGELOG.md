@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- Implemented searchable autocomplete for selecting block reports
+
 ## 5.0.3 - 2025-10-07
 ### Added
 - Added support for Moodle 5.1

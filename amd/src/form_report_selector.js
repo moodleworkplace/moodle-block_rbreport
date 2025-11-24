@@ -55,22 +55,8 @@ const searchReports = (query, pagetype, pageurl, subpage) => {
  * @param {Function} failure
  */
 export const transport = async(selector, query, success, failure) => {
-
     const input = document.querySelector(selector);
-    if (!input) {
-        failure();
-        return;
-    }
-
-    const container = input.closest('[data-contextid]');
-    if (!container) {
-        failure();
-        return;
-    }
-
-    const pagetype = container.dataset.pagetype;
-    const pageurl = container.dataset.pageurl;
-    const subpage = container.dataset.subpage;
+    const {pagetype, pageurl, subpage} = input.dataset;
 
     try {
         const results = await searchReports(query, pagetype, pageurl, subpage);

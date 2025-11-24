@@ -42,11 +42,10 @@ class block_rbreport_edit_form extends block_edit_form {
 
         $mform->addElement('autocomplete', 'config_corereport', get_string('configreport', 'block_rbreport'), [], [
             'ajax' => 'block_rbreport/form_report_selector',
-            'data-contextid' => $this->page->context->id,
             'data-pagetype' => $this->page->pagetype,
             'data-subpage' => $this->page->subpage,
             'data-pageurl' => $this->page->url->out(false),
-            'valuehtmlcallback' => static function(int $reportid): ?string {
+            'valuehtmlcallback' => static function (int $reportid): ?string {
                 $persistent = report::get_record(['id' => $reportid]);
                 if ($persistent !== false && permission::can_view_report($persistent)) {
                     return $persistent->get_formatted_name();

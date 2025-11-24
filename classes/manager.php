@@ -36,9 +36,19 @@ class manager {
      * @param string $pagetype
      * @param string|null $subpage
      * @param moodle_url $pageurl
+     * @param string|null $search
+     * @param int $limitfrom
+     * @param int $limitnum
      * @return string[]
      */
-    public function get_report_options(string $pagetype, ?string $subpage, moodle_url $pageurl): array {
+    public function get_report_options(
+        string $pagetype,
+        ?string $subpage,
+        moodle_url $pageurl,
+        ?string $search = null,
+        int $limitfrom = 0,
+        int $limitnum = 0,
+    ): array {
         global $DB;
         $sql = 'type=:type';
         $params = ['type' => \core_reportbuilder\local\report\base::TYPE_CUSTOM_REPORT];
@@ -52,11 +62,20 @@ class manager {
 
         [$asql, $aparams] = audience::user_reports_list_access_sql('r');
 
+        // If searching, add LIKE condition.
+        $searchsql = '';
+        if ((string) $search !== '') {
+            $searchsql = ' AND ' . $DB->sql_like('r.name', ':search', false, false);
+            $params['search'] = '%' . $DB->sql_like_escape($search) . '%';
+        }
+
         $records = $DB->get_records_sql(
             'SELECT * FROM {reportbuilder_report} r
-            WHERE ' . $sql . ' AND ' . $tsql . ' AND ' . $asql . '
+            WHERE ' . $sql . ' AND ' . $tsql . ' AND ' . $asql . $searchsql . '
             ORDER BY name, id',
             $params + $aparams + $tparams,
+            $limitfrom,
+            $limitnum,
         );
         $res = [];
         foreach ($records as $record) {

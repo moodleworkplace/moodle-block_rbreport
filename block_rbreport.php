@@ -38,7 +38,6 @@ class block_rbreport extends block_base {
      * Initializes class member variables.
      */
     public function init() {
-        // Needed by Moodle to differentiate between blocks.
         $this->title = get_string('pluginname', 'block_rbreport');
     }
 
@@ -48,13 +47,7 @@ class block_rbreport extends block_base {
      * @return stdClass The block contents.
      */
     public function get_content() {
-
         if ($this->content !== null) {
-            return $this->content;
-        }
-
-        if (empty($this->instance)) {
-            $this->content = '';
             return $this->content;
         }
 
@@ -92,14 +85,11 @@ class block_rbreport extends block_base {
      * The function is called immediatly after init().
      */
     public function specialization() {
-
         // Load user defined title and make sure it's never empty.
-        if (!empty($this->config->title)) {
+        if ((string) $this->config?->title !== '') {
             $this->title = $this->config->title;
         } else if ($report = $this->get_core_report()) {
             $this->title = $report->get_report_persistent()->get_formatted_name();
-        } else {
-            $this->title = get_string('pluginname', 'block_rbreport');
         }
 
         if (!empty($this->config->corereport) && !$this->get_core_report()) {

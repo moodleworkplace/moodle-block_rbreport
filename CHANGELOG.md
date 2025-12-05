@@ -1,8 +1,13 @@
 # Changelog
 
 ## Unreleased
+### Fixed
+- Consistent report audience checks for populating block
 ### Changed
 - Implemented searchable autocomplete for selecting block reports
+- Compatibility with latest codechecker standards
+### Removed
+- Final removal of support for old Workplace report builder tool
 
 ## 5.0.3 - 2025-10-07
 ### Added

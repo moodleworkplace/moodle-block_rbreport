@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 5.0.9 - 2026-08-11
 ### Fixed
 - Fixed custom block title not applying filters
 
